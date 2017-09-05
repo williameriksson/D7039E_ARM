@@ -173,6 +173,28 @@ void SystemInit(void)
   /* Disable all interrupts */
   RCC->CIR = 0x00000000;
 
+  	RCC->APB1ENR |= RCC_APB1ENR_PWREN; // Enable Power Interface Clock
+	//RCC->CR |= RCC_CR_HSEBYP; //Bypass external Oscillator with external clocks source
+	RCC->CR |= RCC_CR_HSEON; // Enable external clock source
+	//while (!(RCC->CR & RCC_CR_HSERDY)) //Wait for clock to be ready
+	while (RCC_CR_HSERDY == 0) //Wait loop for HSE
+	{
+		  }
+
+	PWR->CR |= PWR_CR_VOS; //Set VOS to scale 1
+	RCC->CFGR |= (0b100<<13); //Sets APB2 prescaler to division by 2 to achieve 50MHz
+	RCC->PLLCFGR &= ~(0x7FFF); //Clear PPLN and PLLM register
+	RCC->PLLCFGR |= (0x6408); //Sets PLLN Register to 400 and PLLM Register to 8
+	RCC->PLLCFGR |= (1<<16); //Sets PLLP to 4
+	RCC->PLLCFGR |= (1<<22); //Sets HSE as PLL source clock
+	RCC->CR |= RCC_CR_PLLON; // Turns the PLL On
+	while (RCC_CR_PLLRDY == 0) //Wait loop for PLL
+	{
+
+	}
+	FLASH->ACR |= (11<<0); //Sets the flash latency to 3 Waitstates
+	RCC->CFGR |= (1<<1); //Sets the CPU to get clock source from PLL
+
   /* Configure the Vector Table location add offset address ------------------*/
 #ifdef VECT_TAB_SRAM
   SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
@@ -272,8 +294,8 @@ void SystemCoreClockUpdate(void)
 /**
   * @}
   */
-  
+
 /**
   * @}
-  */    
+  */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
