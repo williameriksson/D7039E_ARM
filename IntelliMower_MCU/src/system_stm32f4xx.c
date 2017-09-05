@@ -183,6 +183,7 @@ void SystemInit(void)
 
 	PWR->CR |= PWR_CR_VOS; //Set VOS to scale 1
 	RCC->CFGR |= (0b100<<13); //Sets APB2 prescaler to division by 2 to achieve 50MHz
+	RCC->CFGR |= (0b100<<10); //Sets APB1 prescaler to division by 2 to achieve 50MHz
 	RCC->PLLCFGR &= ~(0x7FFF); //Clear PPLN and PLLM register
 	RCC->PLLCFGR |= (0x6408); //Sets PLLN Register to 400 and PLLM Register to 8
 	RCC->PLLCFGR |= (1<<16); //Sets PLLP to 4
