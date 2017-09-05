@@ -1,0 +1,8 @@
+.metadata/
+/.settings/
+/Debug/
+/Drivers/
+/*.cproject
+/*.launch
+/*.ld
+/.project
