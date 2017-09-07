@@ -6,6 +6,8 @@
  */
 #include "initSPI.h"
 
+uint16_t rx;
+
 void initSPI () {
 
 	//Enables clock for GPIOC and SPI2 interface
@@ -29,7 +31,7 @@ void initSPI () {
 	SPI2->CR2 |= SPI_CR2_FRF;
 
 	//Enables transmit empty and recieve not empty
-	SPI2->CR2 |= SPI_CR2_TXEIE;
+	//SPI2->CR2 |= SPI_CR2_TXEIE;
 	SPI2->CR2 |= SPI_CR2_RXNEIE;
 
 
@@ -46,7 +48,7 @@ void initSPI () {
 void SPI2_IRQHandler (void) {
 
 	if (SPI2->SR & SPI_SR_RXNE) {
-
+		rx = SPI2->DR;
 	}
 
 
