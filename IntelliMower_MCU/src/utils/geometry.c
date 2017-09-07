@@ -1,4 +1,4 @@
-#include "geometry.h"
+#include "Geometry.h"
 
 void initLineTwoPoints(line *l, double x1, double y1, double x2, double y2) {
 	l->k = (y2 - y1) / (x2 - x1);

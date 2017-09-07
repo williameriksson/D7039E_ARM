@@ -1,7 +1,7 @@
 /*
 * Contains code for the COBS (Consistent Overhead Byte Stuffing) encoding and decoding
  */
-#include "cobs.h"
+#include "Cobs.h"
 
 //Encodes data with COBS, dst MUST be length + 2 at least.
 void stuffData(uint8_t *ptr, int length_ptr, uint8_t *dst) {

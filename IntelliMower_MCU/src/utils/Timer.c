@@ -1,4 +1,4 @@
-#include "timerUtils.h"
+#include <utils/Timer.h>
 /*
  * Initializes a timer register for interrupts
  */
