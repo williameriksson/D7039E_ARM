@@ -4,15 +4,19 @@
  *  Created on: 1 sep. 2017
  *      Author: rjons
  */
-#include "initSPI.h"
+#include "SPI.h"
 
 uint16_t rx;
 
-void initSPI () {
+void InitSPI () {
 
 	//Enables clock for GPIOC and SPI2 interface
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
 	RCC->AHB2ENR |= RCC_APB1ENR_SPI2EN;
+
+	//LED enable for tests
+	GPIOA->MODER |= GPIO_MODER_MODER5_0;
 
 	//Sets GPIO mode on PB12-15
 	GPIOC->MODER |= GPIO_MODER_MODER12_1;
@@ -48,6 +52,7 @@ void initSPI () {
 void SPI2_IRQHandler (void) {
 
 	if (SPI2->SR & SPI_SR_RXNE) {
+		GPIOA->ODR |= GPIO_ODR_ODR_5;
 		rx = SPI2->DR;
 	}
 
