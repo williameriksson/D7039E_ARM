@@ -12,3 +12,4 @@ http://www.st.com/content/ccc/resource/technical/document/reference_manual/9b/53
 http://www.st.com/content/ccc/resource/technical/document/user_manual/98/2e/fa/4b/e0/82/43/b7/DM00105823.pdf/files/DM00105823.pdf/jcr:content/translations/en.DM00105823.pdf
 
 ### Design Document
+https://github.com/williameriksson/D7039E_ARM/blob/master/Design%20Document.md
