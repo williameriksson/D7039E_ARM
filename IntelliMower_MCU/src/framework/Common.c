@@ -1,15 +1,12 @@
 /*
  * Common.c
- *
- *  Created on: 7 sep. 2017
- *      Author: A1201-admin
  */
 
 #include "Common.h"
 #include "CmdSystem.h"
 #include "EventLoop.h"
 #include "KeyInput.h"
-
+#include "ControlLoop.h"
 
 //static bool isInitialized;
 
@@ -28,9 +25,9 @@ void CommonInit() {
 void CommonFrame() {
 
 	// Examples of states for the state machine we could create a struct or enums for these as well
-	//static bool isInitialized;
-	//static bool isInIdle;
-	//static bool isInClippingMode;
+	// static bool isInitialized;
+	// static bool isInIdle;
+	// static bool isInClippingMode;
 
 
 /*
@@ -64,7 +61,6 @@ void CommonFrame() {
  *
  */
 void CommonLoop() {
-
 
 	while(1){
 		/*if (!isInitialized){
