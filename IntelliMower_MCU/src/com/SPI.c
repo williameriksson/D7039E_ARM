@@ -48,10 +48,11 @@ void InitSPI () {
 	//Enables SPI, This MUST happen after SPI configuration
 	SPI2->CR1 |= SPI_CR1_SPE;
 
-	__enable_irq();
+
 
 	NVIC_EnableIRQ(SPI2_IRQn);
 	NVIC_SetPriority(SPI2_IRQn, 71);
+	__enable_irq();
 
 }
 
