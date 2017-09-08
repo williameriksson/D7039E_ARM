@@ -1,14 +1,19 @@
 #include <utils/Timer.h>
 /*
  * Initializes a timer register for generating interrupts after timeDelay
+ * timeDelay is in milli seconds.
+ * CAUTION: using delays longer than 2^16 ms requires a 32bit timer (TIM2 or TIM5)
  */
 void initTimerInterrupt(TIM_TypeDef *timerReg, int timeDelay) {
 	//TODO: fix this func.
 	timerRegEnable(timerReg);
 	timerReg->DIER |= TIM_DIER_UIE; //enables update interrupts
-	timerReg->PSC = 10000-1; //sets prescaler -> clock freq 10 kHz
-	timerReg->ARR = ((timerReg->PSC)+1); //10Hz freq
+	timerReg->PSC = 10000-1; //sets prescaler -> clock freq 1 kHz
+	timerReg->ARR = timeDelay*10; //timedelay is MS delay
 	timerReg->CR1 |= TIM_CR1_CEN; //enables the Timer.
+
+	NVIC_EnableIRQ(TIM2_IRQn);
+	NVIC_SetPriority(TIM2_IRQn, 20);
 }
 
 /*
@@ -58,6 +63,7 @@ void initTimerPWM(TIM_TypeDef *timerReg, uint8_t channel, GPIO_TypeDef *gpio, ui
  */
 void timerSetPWM(TIM_TypeDef *timerReg, uint8_t channel, int pulseWidthMicroSec, int frequency) {
 
+	int pulseWidth = pulseWidthMicroSec;
 	int timerOne = (int)timerReg == (int)TIM1;
 	int timerTwo = (int)timerReg == (int)TIM2;
 	int timerFive = (int)timerReg == (int)TIM5;
@@ -73,23 +79,24 @@ void timerSetPWM(TIM_TypeDef *timerReg, uint8_t channel, int pulseWidthMicroSec,
 		timerReg->DIER |= TIM_DIER_UIE; //Update interrupts enabled
 		timerReg->PSC = 10000-1; //10 khz clock
 		timerReg->ARR = (10000/frequency)-1;
+		pulseWidth = pulseWidth / 100;
 	}
 
 	switch(channel) {
 	case 1:
-		timerReg->CCR1 = (timerReg->ARR) - pulseWidthMicroSec;
+		timerReg->CCR1 = (timerReg->ARR) - pulseWidth;
 		timerReg->CCMR1 |= TIM_CCMR1_OC1M;
 		break;
 	case 2:
-		timerReg->CCR2 = (timerReg->ARR) - pulseWidthMicroSec;
+		timerReg->CCR2 = (timerReg->ARR) - pulseWidth;
 		timerReg->CCMR1 |= TIM_CCMR1_OC2M;
 		break;
 	case 3:
-		timerReg->CCR3 = (timerReg->ARR) - pulseWidthMicroSec;
+		timerReg->CCR3 = (timerReg->ARR) - pulseWidth;
 		timerReg->CCMR2 |= TIM_CCMR2_OC3M;
 		break;
 	case 4:
-		timerReg->CCR4 = (timerReg->ARR) - pulseWidthMicroSec;
+		timerReg->CCR4 = (timerReg->ARR) - pulseWidth;
 		timerReg->CCMR2 |= TIM_CCMR2_OC4M;
 		break;
 	}

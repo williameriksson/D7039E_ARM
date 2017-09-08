@@ -20,7 +20,7 @@ void gpioEnable(GPIO_TypeDef *gpio) {
 		}
 }
 
-//sets gpio on pin to input mode
+//sets gpio on pin to input mode (default mode)
 void gpioSetInput(GPIO_TypeDef *gpio, int pin) {
 	gpio->MODER &= ~((uint8_t)0x3 << pin*2);
 }
@@ -39,4 +39,12 @@ void gpioSetAF(GPIO_TypeDef *gpio, int pin, uint8_t altFunc) {
 //sets gpio on pin to analog mode
 void gpioSetAnalog(GPIO_TypeDef *gpio, int pin) {
 	gpio->MODER &= ((uint8_t)0x3 << pin*2);
+}
+
+void gpioSetPinHigh(GPIO_TypeDef *gpio, int pin) {
+	gpio->ODR |= ((uint8_t)0x1 << pin);
+}
+
+void gpioSetPinLow(GPIO_TypeDef *gpio, int pin) {
+	gpio->ODR &= ~((uint8_t)0x1 << pin);
 }
