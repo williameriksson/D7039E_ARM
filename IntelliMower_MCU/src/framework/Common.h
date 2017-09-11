@@ -9,14 +9,12 @@
 #ifndef FRAMEWORK_COMMON_H_
 #define FRAMEWORK_COMMON_H_
 
-// Inits for most functions that need to be initialized at start of program
-void CommonInit();
 
-//
-void CommonFrame();
+void 	CommonInit(); 				// master init
+uint8_t CommonIsInitialized();		// init check
+void 	CommonFrame(); 				// "main loop"
+void 	CommonQuit()				// quit the program
 
-//
-void CommonLoop();
 
 
 #endif /* FRAMEWORK_COMMON_H_ */
