@@ -52,3 +52,16 @@ void GpioSetPinLow(GPIO_TypeDef *gpio, int pin) {
 void GpioSetPinToggle(GPIO_TypeDef *gpio, int pin) {
 	gpio->ODR ^= ((uint8_t)0x1 << pin);
 }
+
+void GpioSetOutSpeed(GPIO_TypeDef *gpio, int pin, GPIO_O_SPEED speed) {
+	gpio->OSPEEDR |= ((uint8_t)speed << pin*2);
+}
+
+void GpioSetOtyper(GPIO_TypeDef *gpio, int pin) {
+	gpio->OTYPER |= ((uint8_t)0x1 << pin);
+}
+
+int GpioReadInputPin(GPIO_TypeDef *gpio, int pin) {
+	int temp = gpio->IDR;
+	return temp >> pin;
+}
