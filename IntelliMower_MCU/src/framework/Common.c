@@ -1,24 +1,23 @@
 /*
  * Common.c
- *
- *  Created on: 7 sep. 2017
- *      Author: A1201-admin
  */
+
+#include <stdint.h>
 
 #include "Common.h"
 #include "CmdSystem.h"
-#include "EventLoop.h"
 #include "KeyInput.h"
+#include "ControlLoop.h"
 
 
-//static bool isInitialized;
+static uint8_t isInitialized = 0x00;
 
 /*
  *
  */
 void CommonInit() {
 
-	//isInitialized = True;
+	isInitialized = 1;
 }
 
 
@@ -28,49 +27,40 @@ void CommonInit() {
 void CommonFrame() {
 
 	// Examples of states for the state machine we could create a struct or enums for these as well
-	//static bool isInitialized;
-	//static bool isInIdle;
-	//static bool isInClippingMode;
-
+	// static bool isInitialized;
+	// static bool isInIdle;
+	// static bool isInClippingMode;
 
 /*
   	pseudo code for the state machine
 
 	 sensor = ReadSensors();
-	 if (!isInIdle && ){
-		 if ( sensor ) {
-			Alert Raspberry
-			Do Something Based on sensor reading or wait for cmd from raspberry
+	 // After power on the MCU goes in idle state and waits for cmds from RPI
 
-		 } else {
-			Do normal operation
-				oldEvent = newEvent;
-				newEvent = PumpEvents();
+	 if ( isIdle ){
+		 if ( sensor ) {	// Small obstacle detected
+		 	// Do Something Based on sensor
+			// Alert Raspberry and go into idle if the obstacle is too large
+		 {
 
-				case : event {
+	 } else if ( isCutting ) {	// In cutting mode run control loop
+
+		 if ( sensor ) {	// Small obstacle detected
+		 	// Do Something Based on sensor
+			// Alert Raspberry and go into idle if the obstacle is too large
+		 {
+
+		oldCmd = newCmd;
+		newCmd = PumpCmds();
+
+		case : event {
 
 
-				}
+		}
 
 		 }
 	 }
 */
 
-
 }
 
-
-/*
- *
- */
-void CommonLoop() {
-
-
-	while(1){
-		/*if (!isInitialized){
-			// write error code to some memory address used for errors.
-			break;
-		}*/
-		CommonFrame();
-	}
-}

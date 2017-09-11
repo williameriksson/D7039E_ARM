@@ -1,12 +1,20 @@
 /*
  * Cmd.h
- *
- *  Created on: 7 sep. 2017
- *      Author: A1201-admin
  */
 
 #ifndef FRAMEWORK_CMDSYSTEM_H_
 #define FRAMEWORK_CMDSYSTEM_H_
+
+
+typedef enum {
+	STOP 	= 0x00,
+	FORWARD = 0x01,
+	BACK 	= 0x02,
+	LEFT 	= 0x03,
+	RIGHT 	= 0x04,
+	MOVE 	= 0x05,
+
+} rpiCMD_t;
 
 
 
