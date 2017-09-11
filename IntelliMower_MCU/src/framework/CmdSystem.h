@@ -1,13 +1,19 @@
 /*
  * Cmd.h
- *
- *  Created on: 7 sep. 2017
- *      Author: A1201-admin
  */
 
 #ifndef FRAMEWORK_CMDSYSTEM_H_
 #define FRAMEWORK_CMDSYSTEM_H_
 
+typedef enum {
+	STOP = 0x01,
+	FORWARD = 1,
+	BACK,
+	LEFT,
+	RIGHT,
+	MOW,
+
+};
 
 
 #endif /* FRAMEWORK_CMDSYSTEM_H_ */

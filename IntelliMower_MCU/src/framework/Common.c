@@ -4,7 +4,6 @@
 
 #include "Common.h"
 #include "CmdSystem.h"
-#include "EventLoop.h"
 #include "KeyInput.h"
 #include "ControlLoop.h"
 
@@ -29,25 +28,32 @@ void CommonFrame() {
 	// static bool isInIdle;
 	// static bool isInClippingMode;
 
-
 /*
   	pseudo code for the state machine
 
 	 sensor = ReadSensors();
-	 if (!isInIdle && ){
-		 if ( sensor ) {
-			Alert Raspberry
-			Do Something Based on sensor reading or wait for cmd from raspberry
+	 // After power on the MCU goes in idle state and waits for cmds from RPI
 
-		 } else {
-			Do normal operation
-				oldEvent = newEvent;
-				newEvent = PumpEvents();
+	 if ( isIdle ){
+		 if ( sensor ) {	// Small obstacle detected
+		 	// Do Something Based on sensor
+			// Alert Raspberry and go into idle if the obstacle is too large
+		 {
 
-				case : event {
+	 } else if ( isCutting ) {	// In cutting mode run control loop
+
+		 if ( sensor ) {	// Small obstacle detected
+		 	// Do Something Based on sensor
+			// Alert Raspberry and go into idle if the obstacle is too large
+		 {
+
+		oldCmd = newCmd;
+		newCmd = PumpCmds();
+
+		case : event {
 
 
-				}
+		}
 
 		 }
 	 }
