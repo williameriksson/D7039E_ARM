@@ -10,7 +10,7 @@
  */
 typedef const struct {
 	TIM_TypeDef *timer;
-	const GPIO_TypeDef *gpio;
+	GPIO_TypeDef *gpio;
 	int channel; //TIM channel for PWM generation
 	int pin; //output pin for PWM
 	int pwmMin; //minimum PWM width in micro sec
@@ -19,5 +19,7 @@ typedef const struct {
 }MotorController;
 
 void InitMotorControl();
+void SetMotorSpeed(MotorController *motorController, int percentage);
+int GetMotorSpeed();
 
 #endif /* MOTORS_MOTORCONTROL_H_ */

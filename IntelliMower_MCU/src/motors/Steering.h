@@ -6,5 +6,4 @@
 
 void InitSteering(void);
 
-
 #endif /* MOTORS_STEERING_H_ */
