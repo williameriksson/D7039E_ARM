@@ -4,11 +4,10 @@
  * timeDelay is in milli seconds.
  * CAUTION: using delays longer than 2^16 ms requires a 32bit timer (TIM2 or TIM5)
  */
-void initTimerInterrupt(TIM_TypeDef *timerReg, int timeDelay) {
-	//TODO: fix this func.
-	timerRegEnable(timerReg);
+void InitTimerInterrupt(TIM_TypeDef *timerReg, int timeDelay) {
+	TimerRegEnable(timerReg);
 	timerReg->DIER |= TIM_DIER_UIE; //enables update interrupts
-	timerReg->PSC = 10000-1; //sets prescaler -> clock freq 1 kHz
+	timerReg->PSC = 10000-1; //sets prescaler -> clock freq 10 kHz
 	timerReg->ARR = timeDelay*10; //timedelay is MS delay
 	timerReg->CR1 |= TIM_CR1_CEN; //enables the Timer.
 
@@ -20,7 +19,7 @@ void initTimerInterrupt(TIM_TypeDef *timerReg, int timeDelay) {
  * Intializes a timer register (TIM 1-5 / 9-11 for PWM generation)
  * CAUTION: can run 4 / 2 different pulse widths per timer but only 1 frequency due to shared ARR regs.
  */
-void initTimerPWM(TIM_TypeDef *timerReg, uint8_t channel, GPIO_TypeDef *gpio, uint8_t pin, int pulseWidthMicroSec, int frequency) {
+void InitTimerPWM(TIM_TypeDef *timerReg, uint8_t channel, GPIO_TypeDef *gpio, uint8_t pin, int pulseWidthMicroSec, int frequency) {
 
 	uint8_t alternateFunc;
 	int timerOne = (int)timerReg == (int)TIM1;
@@ -43,14 +42,14 @@ void initTimerPWM(TIM_TypeDef *timerReg, uint8_t channel, GPIO_TypeDef *gpio, ui
 		alternateFunc = 0x03;
 	}
 
-	gpioEnable(gpio);
-	gpioSetAF(gpio, pin, alternateFunc);
+	GpioEnable(gpio);
+	GpioSetAF(gpio, pin, alternateFunc);
 
 	__disable_irq();
 
-	timerRegEnable(timerReg); //enables the timerReg register
+	TimerRegEnable(timerReg); //enables the timerReg register
 
-	timerSetPWM(timerReg, channel, pulseWidthMicroSec, frequency); //sets the actual PWM modulation
+	TimerSetPWM(timerReg, channel, pulseWidthMicroSec, frequency); //sets the actual PWM modulation
 
 	timerReg->CCER |= (((uint8_t)0x1) << (channel-1)*4);
 	timerReg->CR1 |= TIM_CR1_CEN;
@@ -61,7 +60,7 @@ void initTimerPWM(TIM_TypeDef *timerReg, uint8_t channel, GPIO_TypeDef *gpio, ui
 /*
  * sets the PWM width and frequency for specified timer and channel.
  */
-void timerSetPWM(TIM_TypeDef *timerReg, uint8_t channel, int pulseWidthMicroSec, int frequency) {
+void TimerSetPWM(TIM_TypeDef *timerReg, uint8_t channel, int pulseWidthMicroSec, int frequency) {
 
 	int pulseWidth = pulseWidthMicroSec;
 	int timerOne = (int)timerReg == (int)TIM1;
@@ -102,7 +101,7 @@ void timerSetPWM(TIM_TypeDef *timerReg, uint8_t channel, int pulseWidthMicroSec,
 	}
 }
 
-void timerRegEnable(TIM_TypeDef *timerReg) {
+void TimerRegEnable(TIM_TypeDef *timerReg) {
 	switch((int)timerReg) {
 		//TIM 1/2 is enabled in APB2ENR / APB1ENR reg
 		case (int)TIM1:

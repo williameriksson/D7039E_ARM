@@ -1,13 +1,29 @@
-/*
- * Steering.c
- *
- *  Created on: 7 sep. 2017
- *      Author: A1201-admin
- */
+#include "Steering.h"
 
-#ifndef MOTORS_STEERING_C_
-#define MOTORS_STEERING_C_
+void InitSteering() {
+	//initializes a motorController with immutable parameters.
+	MotorController leftMotorController = {
+		.timer = TIM2,
+		.channel = 3,
+		.gpio = GPIOA,
+		.pin = 2,
+		.pwmMin = 1000,
+		.pwmMax = 2000,
+		.frequency = 50,
+	};
 
+	MotorController rightMotorController = {
+		.timer = TIM2,
+		.channel = 4,
+		.gpio = GPIOA,
+		.pin = 3,
+		.pwmMin = 1000,
+		.pwmMax = 2000,
+		.frequency = 50,
+	};
 
-
-#endif /* MOTORS_STEERING_C_ */
+	InitMotorControl(&leftMotorController);
+	InitMotorControl(&rightMotorController);
+	SetMotorSpeed(&leftMotorController, 0);
+	SetMotorSpeed(&rightMotorController, 0);
+}
