@@ -19,8 +19,31 @@ void EvalObstacle () {
 /*
  *
  */
-void IdleMode( rpiCMD_t *rpiCMD ) {
-	// Enable interrupt again
+void SPI2_IRQHandler (void) {
+
+	uint8_t rpiCMD;
+
+	if (SPI2->SR & SPI_SR_RXNE) {
+		GPIOA->ODR |= GPIO_ODR_ODR_5;
+		rpiCMD = SPI2->DR;
+	}
+
+	switch ( rpiCMD ) {
+
+	case STOP :
+
+	case FORWARD :
+
+	case BACK 	:
+
+	case LEFT 	:
+
+	case RIGHT 	:
+
+	case MOVE 	:
+	break;
+
+	}
 
 }
 

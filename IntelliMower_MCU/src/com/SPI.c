@@ -6,7 +6,7 @@
  */
 #include "SPI.h"
 
-uint16_t rx;
+
 
 void InitSPI () {
 
@@ -61,16 +61,5 @@ void InitSPI () {
 
 }
 
-void SPI2_IRQHandler (void) {
 
-	if (SPI2->SR & SPI_SR_RXNE) {
-		GPIOA->ODR |= GPIO_ODR_ODR_5;
-		rx = SPI2->DR;
-
-
-	}
-
-
-
-}
 
