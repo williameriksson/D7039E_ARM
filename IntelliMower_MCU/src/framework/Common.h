@@ -13,7 +13,7 @@
 void 	CommonInit(); 				// master init
 uint8_t CommonIsInitialized();		// init check
 void 	CommonFrame(); 				// "main loop"
-void 	CommonQuit()				// quit the program
+void 	CommonQuit();				// quit the program
 
 
 

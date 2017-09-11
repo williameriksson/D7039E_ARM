@@ -5,18 +5,21 @@
 #ifndef FRAMEWORK_CMDSYSTEM_H_
 #define FRAMEWORK_CMDSYSTEM_H_
 
+#include <stdint.h>
 
+//
 typedef enum {
-	STOP 	= 0x00,
-	FORWARD = 0x01,
-	BACK 	= 0x02,
-	LEFT 	= 0x03,
-	RIGHT 	= 0x04,
-	MOVE 	= 0x05,			// goes into the control loop and listens to feed from rpi
+	MCU_NULL	= 0x00,
+	MCU_STOP 	= 0x01,			// Stop currently running command and go into idle
+	MCU_FORWARD = 0x02,
+	MCU_BACK 	= 0x03,
+	MCU_LEFT 	= 0x04,
+	MCU_RIGHT 	= 0x05,
+	MCU_MOVE 	= 0x06,			// goes into the control loop and listens to feed from rpi
 } rpiCMD_t;
 
 
-void RunCommand(const rpi_t rpiCMD );
+uint8_t RunCommand( const rpiCMD_t *rpiCMD );		//
 
 
 #endif /* FRAMEWORK_CMDSYSTEM_H_ */

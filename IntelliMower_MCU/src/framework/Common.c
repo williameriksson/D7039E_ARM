@@ -8,9 +8,10 @@
 #include "ControlLoop.h"
 #include "KeyInput.h"
 
+
 // private variables
-static uint8_t isInitialized = 0x00;
-static uint8_t quitProgram	 = 0x00;
+static uint8_t isInitialized;
+static uint8_t quitProgram;
 
 /*
  *  Master initialize for the whole program
@@ -38,7 +39,9 @@ void CommonQuit() {
  * "main"
  */
 void CommonFrame() {
-	while( !exitProgram ){
-
+	while( !quitProgram ){
+		// busy wait, let interrupt handlers take over
 	}
 }
+
+

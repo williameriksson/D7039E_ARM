@@ -9,23 +9,26 @@
 /*
  *  Executes the commands
  */
-void RunCommand( const rpiCMD_t *rpiCMD ) {
+uint8_t RunCommand( const rpiCMD_t *rpiCMD ) {
+	// catch if no cmd was sent for execution
+	if( *rpiCMD == MCU_NULL ) return 0;
 
-	switch ( rpiCMD ) {
+	switch ( *rpiCMD ) {
+		case MCU_NULL :
 
-	case STOP :
+		case MCU_STOP :
 
-	case FORWARD :
+		case MCU_FORWARD :
 
-	case BACK 	:
+		case MCU_BACK 	:
 
-	case LEFT 	:
+		case MCU_LEFT 	:
 
-	case RIGHT 	:
+		case MCU_RIGHT 	:
 
-	case MOVE 	:
-	break;
+		case MCU_MOVE 	:
+		break;
 
 	}
-
+	return 1;
 }

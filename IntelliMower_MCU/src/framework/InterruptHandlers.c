@@ -1,6 +1,9 @@
 /*
  * InterruptHandlers.c
  */
+#include "stm32f411xe.h"
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx_nucleo.h"
 
 #include "InterruptHandlers.h"
 #include "CmdSystem.h"
@@ -19,14 +22,16 @@ void Usonic_InterruptHandler () {
  */
 void SPI2_IRQHandler (void) {
 
-	uint8_t rpiCMD;
+	rpiCMD_t *newCMD = MCU_NULL;
 
 	if (SPI2->SR & SPI_SR_RXNE) {
 		GPIOA->ODR |= GPIO_ODR_ODR_5;
-		rpiCMD = SPI2->DR;
+		*newCMD = SPI2->DR;
 	}
 
-	RunCommand();
+	if ( !RunCommand( newCMD ) ) {	// catch errors or if no cmd was sent to run cmd
+
+	}
 
 }
 

@@ -7,7 +7,7 @@
 /*
  *
  */
-int main(void) {
+int main( void ) {
 	//sysInit();
 
 	// Place hardware or system inits
