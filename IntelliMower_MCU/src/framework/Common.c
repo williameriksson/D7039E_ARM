@@ -2,10 +2,10 @@
  * Common.c
  */
 
+#include <framework/Cmd.h>
 #include <stdint.h>
 
 #include "Common.h"
-#include "CmdSystem.h"
 #include "KeyInput.h"
 #include "ControlLoop.h"
 
