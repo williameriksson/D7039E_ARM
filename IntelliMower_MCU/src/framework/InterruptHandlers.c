@@ -13,7 +13,7 @@
  * Name is pseudo code
  */
 void Usonic_InterruptHandler () {
-	// Enable interrupt again
+
 
 }
 
@@ -26,11 +26,15 @@ void SPI2_IRQHandler (void) {
 
 	if (SPI2->SR & SPI_SR_RXNE) {
 		GPIOA->ODR |= GPIO_ODR_ODR_5;
-		*newCMD = SPI2->DR;
+		*newCMD = (uint8_t)SPI2->DR;
+
+		//Snacka med sebbe imon angående "circular buffer" och mer om move.
+		// läs på om cobs
 	}
 
-	if ( !RunCommand( newCMD ) ) {	// catch errors or if no cmd was sent to run cmd
-
+	// execute RPI command on MCU
+	if ( !RunCommand( newCMD ) ) {
+		// catch errors if no cmd was sent to run
 	}
 
 }
@@ -40,6 +44,6 @@ void SPI2_IRQHandler (void) {
  *  Alternatively sleep for next internal interrupt
  */
 void Timer_Interrupt_For_ControlLoop( ) {
-	// Enable interrupt again
+
 
 }

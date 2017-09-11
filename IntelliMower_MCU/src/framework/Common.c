@@ -4,19 +4,17 @@
 #include <stdint.h>
 #include "Common.h"
 
-#include "CmdSystem.h"
-#include "ControlLoop.h"
-#include "KeyInput.h"
 
 
 // private variables
-static uint8_t isInitialized;
-static uint8_t quitProgram;
+static uint8_t isInitialized = 0;
+static uint8_t quitProgram   = 0;
 
 /*
  *  Master initialize for the whole program
  */
 void CommonInit() {
+	// place all inits here
 
 	isInitialized = 1;
 }
