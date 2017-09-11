@@ -59,20 +59,5 @@ void CommonFrame() {
 	 }
 */
 
-
 }
 
-
-/*
- *
- */
-void CommonLoop() {
-
-	while(1){
-		/*if (!isInitialized){
-			// write error code to some memory address used for errors.
-			break;
-		}*/
-		CommonFrame();
-	}
-}
