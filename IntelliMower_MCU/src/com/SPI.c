@@ -26,14 +26,20 @@ void InitSPI () {
 	GPIOB->MODER |= GPIO_MODER_MODER14_1;
 	GPIOB->MODER |= GPIO_MODER_MODER15_1;
 
+	GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR12;
+	GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR13;
+	GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR14;
+	GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR15;
+
 	//Sets PB12-13 to AF6 and PB14-15 to AF5
 	GPIOB->AFR[1] |= (GPIO_AF5_SPI2 << 24);
 	GPIOB->AFR[1] |= (GPIO_AF5_SPI2 << 28);
-	GPIOB->AFR[1] |= (GPIO_AF6_SPI2 << 20);
-	GPIOB->AFR[1] |= (GPIO_AF6_SPI2 << 16);
+	GPIOB->AFR[1] |= (GPIO_AF5_SPI2 << 20);
+	GPIOB->AFR[1] |= (GPIO_AF5_SPI2 << 16);
 
 	//SPI settings. TI-Mode, 16-bit Dataframe
 	//SPI2->CR1 |= SPI_CR1_DFF;
+	SPI2->CR1 |= SPI_CR1_RXONLY;
 	//SPI2->CR2 |= SPI_CR2_FRF;
 
 	//Enables transmit empty and recieve not empty
@@ -49,9 +55,8 @@ void InitSPI () {
 	SPI2->CR1 |= SPI_CR1_SPE;
 
 
-
 	NVIC_EnableIRQ(SPI2_IRQn);
-	NVIC_SetPriority(SPI2_IRQn, 71);
+	NVIC_SetPriority(SPI2_IRQn, 36);
 	__enable_irq();
 
 }
@@ -61,6 +66,8 @@ void SPI2_IRQHandler (void) {
 	if (SPI2->SR & SPI_SR_RXNE) {
 		GPIOA->ODR |= GPIO_ODR_ODR_5;
 		rx = SPI2->DR;
+
+
 	}
 
 
