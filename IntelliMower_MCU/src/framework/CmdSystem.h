@@ -2,8 +2,8 @@
  * Cmd.h
  */
 
-#ifndef FRAMEWORK_CMD_H_
-#define FRAMEWORK_CMD_H_
+#ifndef FRAMEWORK_CMDSYSTEM_H_
+#define FRAMEWORK_CMDSYSTEM_H_
 
 
 typedef enum {
@@ -16,5 +16,7 @@ typedef enum {
 } rpiCMD_t;
 
 
+void RunCommand(const rpi_t rpiCMD );
 
-#endif /* FRAMEWORK_CMD_H_ */
+
+#endif /* FRAMEWORK_CMDSYSTEM_H_ */

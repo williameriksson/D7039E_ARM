@@ -9,9 +9,10 @@
  */
 int main(void) {
 	//sysInit();
-	CommonInit();
 
-	while(1){
+	// Place hardware or system inits
+	// here that are not initialized in common init
 
-	}
+	CommonInit();	// master init
+	CommonFrame();	// busy wait while loop
 }

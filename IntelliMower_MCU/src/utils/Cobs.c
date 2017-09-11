@@ -4,7 +4,7 @@
 #include "Cobs.h"
 
 //Encodes data with COBS, dst MUST be length + 2 at least.
-void stuffData(uint8_t *ptr, int length_ptr, uint8_t *dst) {
+void StuffData(uint8_t *ptr, int length_ptr, uint8_t *dst) {
 	int index = length_ptr - 1; //starts at the end of indata string
 	dst[length_ptr + 1] = 0x00; //marks end of packet.
 	int previousZero = length_ptr + 1; //marks zero already encountered (starts at end-of-string zero)
@@ -22,7 +22,7 @@ void stuffData(uint8_t *ptr, int length_ptr, uint8_t *dst) {
 }
 
 //Decodes the COBS data and puts it into dst.
-void unStuffData(uint8_t *ptr, int length_ptr, uint8_t *dst) {
+void UnStuffData(uint8_t *ptr, int length_ptr, uint8_t *dst) {
 	int index = 1;
 	int nextZero = ptr[0];
 	while (index < length_ptr) {
