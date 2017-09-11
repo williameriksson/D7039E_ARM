@@ -11,4 +11,7 @@ int main(void) {
 	//sysInit();
 	CommonInit();
 
+	while(1){
+
+	}
 }
