@@ -2,19 +2,22 @@
  * Common.c
  */
 
+#include <stdint.h>
+
 #include "Common.h"
 #include "CmdSystem.h"
 #include "KeyInput.h"
 #include "ControlLoop.h"
 
-static bool isInitialized = false;
+
+static uint8_t isInitialized = 0x00;
 
 /*
  *
  */
 void CommonInit() {
 
-	isInitialized = True;
+	isInitialized = 1;
 }
 
 
