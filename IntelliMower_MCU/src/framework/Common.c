@@ -7,14 +7,14 @@
 #include "KeyInput.h"
 #include "ControlLoop.h"
 
-//static bool isInitialized;
+static bool isInitialized = false;
 
 /*
  *
  */
 void CommonInit() {
 
-	//isInitialized = True;
+	isInitialized = True;
 }
 
 

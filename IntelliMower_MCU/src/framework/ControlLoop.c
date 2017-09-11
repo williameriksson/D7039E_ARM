@@ -4,7 +4,7 @@
 
 #include "ControlLoop.h"
 
-
+#include "CmdSystem.h"
 #include "motors/Steering.h"
 #include "motors/MotorControl.h"
 
@@ -13,14 +13,19 @@
  */
 void EvalObstacle () {
 
+	// Enable interrupt again
+
+	while(1) {
+
+	}
 }
 
 /*
  *
  */
-void IdleMode( MSG) {
+void IdleMode( rpiCMD_t *rpiCMD ) {
 
-	// Enable interrupt
+	// Enable interrupt again
 
 	while(1){
 
@@ -37,7 +42,7 @@ void IdleMode( MSG) {
  *  Alternatively sleep for next internal interrupt
  */
 void MowMode( ) {
-
+	// Enable interrupt again
 	while(1){
 
 
