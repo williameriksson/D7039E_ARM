@@ -8,10 +8,9 @@ void InitMotorControl(MotorController *motorController) {
 		motorController->channel,
 		motorController->gpio,
 		motorController->pin,
-		1500,
+		motorController->pulseWidth,
 		motorController->frequency
 	);
-
 //	Set TIM2 to interrupt every 1000ms.
 //	InitTimerInterrupt(TIM2, 100);
 }
@@ -20,11 +19,17 @@ void SetMotorSpeed(MotorController *motorController, int percentage) {
 	int neutralPWM = (motorController->pwmMax + motorController->pwmMin) / 2; //"neutral" PWM
 	int varianceSpan =  neutralPWM - motorController->pwmMin; //max variance of PWM from "neutral"
 	int newPWM = neutralPWM + ((varianceSpan * percentage)/100);
+	motorController->pulseWidth = newPWM;
 	TimerSetPWM(motorController->timer, motorController->channel, newPWM, 50); //sets the new PWM
 }
 
-int GetMotorSpeed() {
-	return 0;
+//returns what speed the motors are supposed to be running at(based on PWM)
+int GetMotorSpeed(MotorController *motorController) {
+	int pulsewidth = motorController->pulseWidth;
+	int neutralPWM = (motorController->pwmMax + motorController->pwmMin) / 2; //"neutral" PWM
+	int varianceSpan =  neutralPWM - motorController->pwmMin; //max variance of PWM from "neutral"
+	int currentDeviation = neutralPWM - pulsewidth;
+	return currentDeviation*100 / varianceSpan;
 }
 
 void IncreaseMotorSpeed() {

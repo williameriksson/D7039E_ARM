@@ -11,12 +11,12 @@ void InitTimerInterrupt(TIM_TypeDef *timerReg, int timeDelay) {
 	timerReg->ARR = timeDelay*10; //timedelay is MS delay
 	timerReg->CR1 |= TIM_CR1_CEN; //enables the Timer.
 
-	NVIC_EnableIRQ(TIM2_IRQn);
-	NVIC_SetPriority(TIM2_IRQn, 20);
+	NVIC_EnableIRQ(TIM3_IRQn);
+	NVIC_SetPriority(TIM3_IRQn, 20);
 }
 
 /*
- * Intializes a timer register (TIM 1-5 / 9-11 for PWM generation)
+ * Intializes a timer registser (TIM 1-5 / 9-11 for PWM generation)
  * CAUTION: can run 4 / 2 different pulse widths per timer but only 1 frequency due to shared ARR regs.
  */
 void InitTimerPWM(TIM_TypeDef *timerReg, uint8_t channel, GPIO_TypeDef *gpio, uint8_t pin, int pulseWidthMicroSec, int frequency) {
@@ -52,7 +52,8 @@ void InitTimerPWM(TIM_TypeDef *timerReg, uint8_t channel, GPIO_TypeDef *gpio, ui
 	TimerSetPWM(timerReg, channel, pulseWidthMicroSec, frequency); //sets the actual PWM modulation
 
 	timerReg->CCER |= (((uint8_t)0x1) << (channel-1)*4);
-	timerReg->CR1 |= TIM_CR1_CEN;
+	timerReg->CR1 |= TIM_CR1_ARPE; //buffers ARR reg
+	timerReg->CR1 |= TIM_CR1_CEN; //starts the timer
 
 	__enable_irq();
 }
@@ -85,18 +86,22 @@ void TimerSetPWM(TIM_TypeDef *timerReg, uint8_t channel, int pulseWidthMicroSec,
 	case 1:
 		timerReg->CCR1 = (timerReg->ARR) - pulseWidth;
 		timerReg->CCMR1 |= TIM_CCMR1_OC1M;
+		timerReg->CCMR1 |= TIM_CCMR1_OC1PE;
 		break;
 	case 2:
 		timerReg->CCR2 = (timerReg->ARR) - pulseWidth;
 		timerReg->CCMR1 |= TIM_CCMR1_OC2M;
+		timerReg->CCMR1 |= TIM_CCMR1_OC2PE;
 		break;
 	case 3:
 		timerReg->CCR3 = (timerReg->ARR) - pulseWidth;
 		timerReg->CCMR2 |= TIM_CCMR2_OC3M;
+		timerReg->CCMR2 |= TIM_CCMR2_OC3PE;
 		break;
 	case 4:
 		timerReg->CCR4 = (timerReg->ARR) - pulseWidth;
 		timerReg->CCMR2 |= TIM_CCMR2_OC4M;
+		timerReg->CCMR2 |= TIM_CCMR2_OC4PE;
 		break;
 	}
 }

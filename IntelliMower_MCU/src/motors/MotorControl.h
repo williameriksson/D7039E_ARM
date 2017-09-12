@@ -8,14 +8,15 @@
 /*
  * Struct containing immuatable information regarding controlling a motor.
  */
-typedef const struct {
+typedef struct {
 	TIM_TypeDef *timer;
 	GPIO_TypeDef *gpio;
-	int channel; //TIM channel for PWM generation
-	int pin; //output pin for PWM
-	int pwmMin; //minimum PWM width in micro sec
-	int pwmMax; //maximum PWM width in micro sec
-	int frequency;
+	const int channel; //TIM channel for PWM generation
+	const int pin; //output pin for PWM
+	const int pwmMin; //minimum PWM width in micro sec
+	const int pwmMax; //maximum PWM width in micro sec
+	int frequency; //in Hz
+	int pulseWidth; //in millisec
 }MotorController;
 
 void InitMotorControl();
