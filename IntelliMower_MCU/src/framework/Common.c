@@ -3,7 +3,7 @@
  */
 #include <stdint.h>
 #include "Common.h"
-
+#include "com/SPI.h"
 
 // private variables
 static volatile uint8_t isInitialized = 0;
@@ -14,7 +14,7 @@ static volatile uint8_t quitProgram   = 0;
  */
 void CommonInit() {
 	// place all inits here
-
+	InitSPI();
 	isInitialized = 1;
 }
 

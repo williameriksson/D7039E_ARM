@@ -10,7 +10,6 @@
 
 void InitSPI () {
 
-
 	__disable_irq();
 
 	//Enables clock for GPIOC and SPI2 interface
