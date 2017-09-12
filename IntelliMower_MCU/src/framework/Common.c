@@ -5,10 +5,9 @@
 #include "Common.h"
 
 
-
 // private variables
-static uint8_t isInitialized = 0;
-static uint8_t quitProgram   = 0;
+static volatile uint8_t isInitialized = 0;
+static volatile uint8_t quitProgram   = 0;
 
 /*
  *  Master initialize for the whole program

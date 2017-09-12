@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 
-void stuffData(uint8_t*, int, uint8_t*);
-void unStuffData(uint8_t*, int, uint8_t*);
+void StuffData(uint8_t*, int, uint8_t*);
+void UnStuffData(uint8_t*, int, uint8_t*);
 
 #endif /* UTILS_COBS_H_ */

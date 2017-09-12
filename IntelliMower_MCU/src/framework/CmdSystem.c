@@ -7,14 +7,14 @@
 
 
 // private variables
-static uint8_t inControlLoop = 0x00;
+static volatile uint8_t inControlLoop = 0x00;
+
 
 /*
  *  Executes the RPI commands on the MCU
  *  FIXME! can a Internal interrupt or a Usonic interrupt, interrupt this?
  */
-
-uint8_t RunCommand( const rpiCMD_t *rpiCMD ) {
+uint8_t RunCommand( rpiCMD_t * rpiCMD, mCoords_t *mCoords) {
 	// catch if no cmd was sent
 	if( *rpiCMD == MCU_NULL ) return 0;
 
@@ -40,12 +40,17 @@ uint8_t RunCommand( const rpiCMD_t *rpiCMD ) {
 			// steer right
 			break;
 		case MCU_MOVE :
-			// start control loop
+			// start internal interrupts that handle the control loop
+			// FIXME! feed mCoords to control loop make an fifo in there
 			inControlLoop = 1;
 			break;
 		case MCU_NULL :
 			// never gets here
 			break;
+		default :
+			return 0;
+			break;
 	}
 	return 1;
 }
+
