@@ -11,7 +11,6 @@
 #include <stdint.h>
 
 
-
 /*
  * type container for the FIFO create an instance of queSet_t
  * and use the following functions to use the fifo.

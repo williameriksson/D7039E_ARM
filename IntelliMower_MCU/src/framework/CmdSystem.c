@@ -45,13 +45,9 @@ uint32_t GetCoord( uint8_t *rpiCmds, uint32_t posIndex ) {
  *
  */
 void InterpretCmds( uint8_t *rpiCmds, rpiCMD_t *newCMD , mCoords_t *mCoords, setMotor_t *setMotor ) {
-
 	*newCMD = rpiCmds[0];
-
 	setMotor->speed = (int8_t)rpiCmds[1];
 	testSpd = rpiCmds[1];
-
-
 }
 
 /*

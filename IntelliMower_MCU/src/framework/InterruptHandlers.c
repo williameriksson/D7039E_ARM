@@ -21,7 +21,7 @@
 
 int bufIndex = 0;
 uint8_t rcvBuf[RECEIVE_BUFSIZE];
-uint8_t testVar = 0;
+uint8_t testCmd = 0;
 
 /*
  * FIXME! Change name
@@ -50,7 +50,7 @@ void SPI2_IRQHandler (void) {
 			uint8_t rpiCmds[bufIndex-1];
 			UnStuffData( rcvBuf, bufIndex+1, rpiCmds ); // decode received commands
 
-			testVar = rpiCmds[0];
+			testCmd = rpiCmds[0];
 
 			// execute decoded RPI commands on MCU
 			// coordinates will come after the move cmd in same transmission
