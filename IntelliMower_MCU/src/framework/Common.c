@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "Common.h"
 #include "com/SPI.h"
+#include "motors/Steering.h"
 
 // private variables
 static volatile uint8_t isInitialized = 0;

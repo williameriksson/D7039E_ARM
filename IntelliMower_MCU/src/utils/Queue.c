@@ -4,32 +4,26 @@
 
 // private variables
 
-#define MAX_BUF_SIZE 10		// que index size
-
-static volatile uint8_t queue[MAX_BUF_SIZE];		// queue container
-
-static volatile int bufIndex, bufOutdex;
-
 
 /*
- *  Push a uint8_t from in the FIFO
+ *  Push a uint32_t from in the FIFO
  */
-int FifoPush( const uint8_t data ) {
-	if (bufIndex == ((bufOutdex - 1 + MAX_BUF_SIZE) % MAX_BUF_SIZE))
+/*int FifoPush( const queSet_t *queSet, uint32_t inData ) {
+	if (queSet->bufIndex == ((queSet->bufOutdex - 1 + queSet->bufSize) % queSet->bufSize))
 		return 0;
-	queue[bufIndex] = data;
-	bufIndex = (bufIndex + 1) % MAX_BUF_SIZE;
+	queSet->queue[queSet->bufIndex] = inData;
+	queSet->bufIndex = (queSet->bufIndex + 1) % queSet->bufSize;
 	return 1;
-}
+}*/
 
 /*
- * Pop a uint8_t from the FIFO
+ * Pop a uint32_t from the FIFO
  */
-int FifoPop( uint8_t *data ) {
-	if (bufIndex == bufOutdex)
+/*int FifoPop( const queSet_t *queSet, uint32_t *outData ) {
+	if (queSet->bufIndex == queSet->bufOutdex)
 		return 0;
-	*data = queue[bufOutdex];
-	bufOutdex = (bufOutdex + 1) % MAX_BUF_SIZE;
+	*outData = queSet->queue[queSet->bufOutdex];
+	queSet->bufOutdex = (queSet->bufOutdex + 1) % queSet->bufSize;
 	return 1;
-}
+}*/
 

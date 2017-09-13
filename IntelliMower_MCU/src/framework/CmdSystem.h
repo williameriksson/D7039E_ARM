@@ -18,15 +18,10 @@ typedef enum {
 	MCU_NULL	= 0x00,
 } rpiCMD_t;
 
-//
-typedef struct {
-	uint8_t xpos;
-	uint8_t ypos;
-}mCoords_t ;
+
 
 //
-uint8_t RunCommand( rpiCMD_t rpiCMD, mCoords_t *mCoords );
-
+uint8_t RunCommand( uint8_t *rpiCmds );
 
 
 

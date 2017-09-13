@@ -36,31 +36,25 @@ void Usonic_InterruptHandler () {
  */
 void SPI2_IRQHandler (void) {
 
-	rpiCMD_t newCMD 	= MCU_NULL;
-	mCoords_t mCoords 	= { .xpos = 0, .ypos = 0 };
-
 	uint8_t ch = 0;
 
 	if ( SPI2->SR & SPI_SR_RXNE ) {
 
-		ch = SPI2->DR;					// read from spi reg (spi clears bit own its own)
+		ch = SPI2->DR;					// read from SPI reg (SPI clears bit own its own in MCU)
 
 		if( ch ) {
 			rcvBuf[bufIndex] = ch;
 			bufIndex++;
 		} else {	// run after receiving stop bit from cobs
 			rcvBuf[bufIndex] = ch;
-			uint8_t decoded[bufIndex-1];
-			UnStuffData( rcvBuf, bufIndex+1, decoded );
+			uint8_t rpiCmds[bufIndex-1];
+			UnStuffData( rcvBuf, bufIndex+1, rpiCmds ); // decode received commands
 
-			newCMD  = (uint8_t)decoded[0];
-			mCoords.xpos = decoded[1];
-			mCoords.ypos = decoded[2];
-			testVar = decoded[0];
+			testVar = rpiCmds[0];
 
-			// execute RPI command on MCU
+			// execute decoded RPI commands on MCU
 			// coordinates will come after the move cmd in same transmission
-			if ( !RunCommand( newCMD, &mCoords ) ) {
+			if ( !RunCommand( rpiCmds ) ) {
 				//catch errors here
 			}
 			bufIndex = 0;
