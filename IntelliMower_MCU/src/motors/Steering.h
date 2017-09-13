@@ -4,13 +4,14 @@
 #include "stm32f411xe.h"
 #include "MotorControl.h"
 
-typedef struct {
-	MotorController *leftMotor;
-	MotorController *rightMotor;
-}Steering;
+//typedef struct {
+//	MotorController *leftMotor;
+//	MotorController *rightMotor;
+//}Steering;
 
-void InitSteering(Steering *steering);
-void RotateLeft(Steering *steering, int speed);
-void RotateRight(Steering *steering, int speed);
+void InitSteering();
+void RotateLeft(int speed);
+void RotateRight(int speed);
+void DriveForward(int speed);
 
 #endif /* MOTORS_STEERING_H_ */

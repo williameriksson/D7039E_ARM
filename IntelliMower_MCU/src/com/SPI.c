@@ -14,12 +14,8 @@ void InitSPI () {
 
 	//Enables clock for GPIOC and SPI2 interface
 	GpioEnable(GPIOB);
-	GpioEnable(GPIOA);
 	RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
 
-	//LED enable for tests
-//	GPIOA->MODER |= GPIO_MODER_MODER5_0;
-	GpioSetOutput(GPIOA, 5);
 	//Set AF05 on GPIOB pin 12-15
 	GpioSetAF(GPIOB, 12, 5);
 	GpioSetAF(GPIOB, 13, 5);

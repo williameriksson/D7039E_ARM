@@ -15,6 +15,7 @@ static volatile uint8_t quitProgram   = 0;
 void CommonInit() {
 	// place all inits here
 	InitSPI();
+	InitSteering();
 	isInitialized = 1;
 }
 

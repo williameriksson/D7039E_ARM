@@ -4,6 +4,7 @@
 
 #include "utils/GPIO.h"
 #include "framework/CmdSystem.h"
+#include "motors/Steering.h"
 
 
 // private variables
@@ -33,17 +34,20 @@ uint8_t RunCommand( rpiCMD_t rpiCMD, mCoords_t *mCoords) {
 			inControlLoop = 0;
 			break;
 		case MCU_FORWARD :
-			// steer forward
-			// Light on used for debugging
+			// drive forward
+			DriveForward(50);
 			break;
 		case MCU_REVERSE :
-			// steer backwards
+			// drive backwards
+			DriveForward(-50);
 			break;
 		case MCU_LEFT :
-			// steer left
+			// rotate left
+			RotateLeft(50);
 			break;
 		case MCU_RIGHT :
-			// steer right
+			// rotate right
+			RotateRight(50);
 			break;
 		case MCU_MOVE :
 

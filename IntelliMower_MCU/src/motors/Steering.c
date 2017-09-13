@@ -22,12 +22,7 @@ MotorController rightMotorController = {
 		.pulseWidth = 1500,
 	};
 
-void InitSteering(Steering *steering) {
-	//initializes a motorController with immutable parameters.
-
-	steering->leftMotor = &leftMotorController;
-	steering->rightMotor = &rightMotorController;
-
+void InitSteering() {
 	InitMotorControl(&leftMotorController);
 	InitMotorControl(&rightMotorController);
 	SetMotorSpeed(&leftMotorController, 0);
@@ -35,27 +30,27 @@ void InitSteering(Steering *steering) {
 }
 
 //Set motors to equal speed to drive straight forward.
-void DriveForward(Steering *steering, int speed) {
-	SetMotorSpeed(steering->leftMotor, speed);
-	SetMotorSpeed(steering->rightMotor, speed);
+void DriveForward(int speed) {
+	SetMotorSpeed(&leftMotorController, speed);
+	SetMotorSpeed(&rightMotorController, speed);
 }
 
 // Adjusts motor speed by adding Adjust(left/right) to motors current speed.
-void AdjustSpeed(Steering *steering, int leftAdjust, int rightAdjust) {
-	int leftSpeed = GetMotorSpeed(steering->leftMotor);
-	int rightSpeed = GetMotorSpeed(steering->leftMotor);
-	SetMotorSpeed(steering->leftMotor, leftSpeed+leftAdjust);
-	SetMotorSpeed(steering->leftMotor, leftSpeed+leftAdjust);
+void AdjustSpeed(int leftAdjust, int rightAdjust) {
+	int leftSpeed = GetMotorSpeed(&leftMotorController);
+	int rightSpeed = GetMotorSpeed(&rightMotorController);
+	SetMotorSpeed(&leftMotorController, leftSpeed+leftAdjust);
+	SetMotorSpeed(&rightMotorController, rightSpeed+rightAdjust);
 }
 
 // Rotates left around it's own axis at speed (percentage)
-void RotateLeft(Steering *steering, int speed) {
-	SetMotorSpeed(steering->leftMotor, (0-speed));
-	SetMotorSpeed(steering->rightMotor, speed);
+void RotateLeft(int speed) {
+	SetMotorSpeed(&leftMotorController, (0-speed));
+	SetMotorSpeed(&rightMotorController, speed);
 }
 
 // Rotates right around it's own axis at speed (percentage)
-void RotateRight(Steering *steering, int speed) {
-	SetMotorSpeed(steering->leftMotor, speed);
-	SetMotorSpeed(steering->rightMotor, (0-speed));
+void RotateRight(int speed) {
+	SetMotorSpeed(&leftMotorController, speed);
+	SetMotorSpeed(&rightMotorController, (0-speed));
 }
