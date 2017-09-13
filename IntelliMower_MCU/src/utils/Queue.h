@@ -17,14 +17,14 @@ typedef struct {
 	uint32_t bufSize;			// que index size
 	uint32_t bufIndex;
 	uint32_t bufOutdex;
-	uint32_t *queue;
+	int *buf;
 } queSet_t;
 
-void InitFifo( );
+void InitFifo( queSet_t *que, uint32_t bufSize );
 
-int FifoPush( const queSet_t *queSet, uint32_t inData );
+int FifoPush( queSet_t *que, uint32_t inData );
 
-int FifoPop( const queSet_t *queSet, uint32_t *outData );
+int FifoPop( queSet_t *que, uint32_t *outData );
 
 
 #endif /* QUEUE_H_ */
