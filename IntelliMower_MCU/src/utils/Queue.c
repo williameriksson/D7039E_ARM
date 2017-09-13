@@ -53,7 +53,7 @@ void insertArray(Array *a, int element) {
  *  Use this when you're done with the fifo
  *  othervize you're going to have a bad time. ( memory leakages! )
  */
-void ShutdownFifo( queSet_t *que ){
+void ShutdownFifo( queSet_t *que ) {
 	free( que->buf );
 	que->buf = 0;
 	que->bufIndex = que->bufSize = 0;
