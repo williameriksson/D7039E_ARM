@@ -11,8 +11,6 @@ void InitMotorControl(MotorController *motorController) {
 		motorController->pulseWidth,
 		motorController->frequency
 	);
-//	Set TIM2 to interrupt every 1000ms.
-//	InitTimerInterrupt(TIM2, 100);
 }
 
 void SetMotorSpeed(MotorController *motorController, int percentage) {
@@ -20,7 +18,12 @@ void SetMotorSpeed(MotorController *motorController, int percentage) {
 	int varianceSpan =  neutralPWM - motorController->pwmMin; //max variance of PWM from "neutral"
 	int newPWM = neutralPWM + ((varianceSpan * percentage)/100);
 	motorController->pulseWidth = newPWM;
-	TimerSetPWM(motorController->timer, motorController->channel, newPWM, 50); //sets the new PWM
+
+	if(newPWM < motorController->pwmMin) { TimerSetPWM(motorController->timer, motorController->channel, motorController->pwmMin, motorController->frequency); }
+
+	else if(newPWM > motorController->pwmMax) { TimerSetPWM(motorController->timer, motorController->channel, motorController->pwmMax, motorController->frequency); }
+
+	else TimerSetPWM(motorController->timer, motorController->channel, newPWM, 50); //sets the new PWM
 }
 
 //returns what speed the motors are supposed to be running at(based on PWM)
@@ -38,11 +41,4 @@ void IncreaseMotorSpeed() {
 
 void DecreaseMotorSpeed() {
 
-}
-
-void TIM2_IRQHandler(void) {
-	TIM2->SR &= ~TIM_SR_UIF;
-	GpioEnable(GPIOA);
-	GpioSetOutput(GPIOA, 5);
-	GpioSetPinToggle(GPIOA, 5);
 }

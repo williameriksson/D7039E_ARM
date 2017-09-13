@@ -6,6 +6,11 @@
 #include "ControlLoop.h"
 
 #include "motors/Steering.h"
-#include "motors/MotorControl.h"
+#include "utils/PIDcontroller.h"
 
+PID pidSteering;
+
+void InitControlLoop() {
+//	InitController(&pidSteering,)
+}
 

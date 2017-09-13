@@ -11,8 +11,37 @@ void InitTimerInterrupt(TIM_TypeDef *timerReg, int timeDelay) {
 	timerReg->ARR = timeDelay*10; //timedelay is MS delay
 	timerReg->CR1 |= TIM_CR1_CEN; //enables the Timer.
 
-	NVIC_EnableIRQ(TIM3_IRQn);
-	NVIC_SetPriority(TIM3_IRQn, 20);
+	IRQn_Type irqType;
+
+	switch((int)timerReg) {
+		case (int)TIM1:
+			irqType = TIM1_BRK_TIM9_IRQn; //TODO: fix the use of adv. timer reg TIM1
+			break;
+		case (int)TIM2:
+				irqType = TIM2_IRQn;
+			break;
+		case (int)TIM3:
+				irqType = TIM3_IRQn;
+			break;
+		case (int)TIM4:
+				irqType = TIM4_IRQn;
+			break;
+		case (int)TIM5:
+				irqType = TIM5_IRQn;
+			break;
+		case (int)TIM9:
+				irqType = TIM1_BRK_TIM9_IRQn;
+			break;
+		case (int)TIM10:
+				irqType = TIM1_UP_TIM10_IRQn;
+			break;
+		case (int)TIM11:
+				irqType = TIM1_TRG_COM_TIM11_IRQn;
+			break;
+		}
+
+	NVIC_EnableIRQ(irqType);
+	NVIC_SetPriority(irqType, 20);
 }
 
 /*
