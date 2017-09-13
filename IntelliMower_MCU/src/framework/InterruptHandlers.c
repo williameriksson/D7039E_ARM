@@ -19,8 +19,9 @@
 
 #define RECEIVE_BUFSIZE 80
 
-volatile static int bufIndex = 0;
-volatile static uint8_t rcvBuf[RECEIVE_BUFSIZE];
+int bufIndex = 0;
+uint8_t rcvBuf[RECEIVE_BUFSIZE];
+uint8_t testVar = 0;
 
 /*
  * FIXME! Change name
@@ -35,21 +36,16 @@ void Usonic_InterruptHandler () {
  */
 void SPI2_IRQHandler (void) {
 
-	rpiCMD_t *newCMD 	= MCU_NULL;
+	rpiCMD_t newCMD 	= MCU_NULL;
 	mCoords_t mCoords 	= { .xpos = 0, .ypos = 0 };
 
 	uint8_t ch = 0;
 
 	if ( SPI2->SR & SPI_SR_RXNE ) {
 
-		// Light on used for debugging
-		GpioEnable( GPIOA );
-		GpioSetOutput( GPIOA, 5 );
-		GpioSetPinHigh( GPIOA, 5 ); 			// set GPIOA 5 high
+		ch = SPI2->DR;					// read from spi reg (spi clears bit own its own)
 
-		ch = (uint8_t)SPI2->DR;					// read from spi reg (spi clears bit own its own)
-
-		if(!ch) {
+		if( ch ) {
 			rcvBuf[bufIndex] = ch;
 			bufIndex++;
 		} else {	// run after receiving stop bit from cobs
@@ -57,9 +53,10 @@ void SPI2_IRQHandler (void) {
 			uint8_t decoded[bufIndex-1];
 			UnStuffData( rcvBuf, bufIndex+1, decoded );
 
-			newCMD  = decoded[0];
+			newCMD  = (uint8_t)decoded[0];
 			mCoords.xpos = decoded[1];
 			mCoords.ypos = decoded[2];
+			testVar = decoded[0];
 
 			// execute RPI command on MCU
 			// coordinates will come after the move cmd in same transmission

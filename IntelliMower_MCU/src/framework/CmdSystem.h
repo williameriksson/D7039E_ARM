@@ -25,7 +25,7 @@ typedef struct {
 }mCoords_t ;
 
 //
-uint8_t RunCommand( rpiCMD_t *rpiCMD, mCoords_t *mCoords );
+uint8_t RunCommand( rpiCMD_t rpiCMD, mCoords_t *mCoords );
 
 
 
