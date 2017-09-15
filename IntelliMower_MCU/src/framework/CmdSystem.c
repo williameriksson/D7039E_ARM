@@ -48,6 +48,7 @@ void InterpretCmds( uint8_t *rpiCmds, rpiCMD_t *newCMD , mCoords_t *mCoords, set
 	*newCMD = rpiCmds[0];
 	setMotor->speed = (int8_t)rpiCmds[1];
 	testSpd = rpiCmds[1];
+
 }
 
 /*
@@ -73,8 +74,8 @@ uint8_t RunCommand( uint8_t *rpiCmds ) {
 			/*GpioEnable( GPIOA );
 			GpioSetOutput( GPIOA, 5 );
 			GpioSetPinHigh( GPIOA, 5 );*/ 			// set GPIOA 5 high
-			// stop steering
-			// stop control loop interrupts
+			// FIXME! stop steering
+			// FIXME! stop control loop interrupts
 			inControlLoop = 0;
 			break;
 		case MCU_FORWARD :
