@@ -5,7 +5,10 @@
  *      Author: rjons
  */
 #include "SPI.h"
-
+#include "stm32f411xe.h"
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx_nucleo.h"
+#include "utils/GPIO.h"
 
 
 void InitSPI () {
