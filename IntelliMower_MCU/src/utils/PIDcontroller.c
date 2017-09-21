@@ -33,7 +33,7 @@ void ChangeParameters(PID *controller, float P, float I, float D) {
 	controller->Kp = P;
 	controller->Ki = I;
 	controller->Kd = D;
-	resetPIDError(controller);
+	ResetPIDError(controller);
 }
 
 void ResetPIDError(PID *controller) {

@@ -11,7 +11,7 @@
 
 
 void 	CommonInit(); 				// master init
-uint8_t CommonIsInitialized();		// init check
+int 	CommonIsInitialized();		// init check
 void 	CommonFrame(); 				// "main loop"
 void 	CommonQuit();				// quit the program
 

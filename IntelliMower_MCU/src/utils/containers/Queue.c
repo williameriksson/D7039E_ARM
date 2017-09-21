@@ -1,35 +1,44 @@
-
 #include "Queue.h"
 
 #include <stdlib.h>
 
 // private variables
-void InitFifo( queSet_t *que, uint32_t setSize ) {
+void InitQueue( queue_t *que, uint32_t setSize ) {
 	que->buf = ( int * )malloc( setSize * sizeof( int ) );
-	que->bufIndex = 0;
+	que->index = 0;
 	que->bufSize = setSize;
 }
 
 /*
  *  Push a uint32_t from in the FIFO
  */
-int FifoPush( queSet_t *que, uint32_t inData ) {
-	if ( que->bufIndex == ( ( que->bufOutdex - 1 + que->bufSize ) % que->bufSize ) )
+int QueuePush( queue_t *que, int inData ) {
+	if ( que->index == ( ( que->outdex - 1 + que->bufSize ) % que->bufSize ) )
 		return 0;
-	que->buf[que->bufIndex] = inData;
-	que->bufIndex = (que->bufIndex + 1) % que->bufSize;
+	que->buf[que->index] = inData;
+	que->index = (que->index + 1) % que->bufSize;
 	return 1;
 }
 
 /*
  * Pop a uint32_t from the FIFO
  */
-int FifoPop( queSet_t *que, uint32_t *outData ) {
-	if ( que->bufIndex == que->bufOutdex )
+int QueuePop( queue_t *que, int *outData ) {
+	if ( que->index == que->outdex )
 		return 0;
-	*outData = que->buf[que->bufOutdex];
-	que->bufOutdex = (que->bufOutdex + 1) % que->bufSize;
+	*outData = que->buf[que->outdex];
+	que->outdex = (que->outdex + 1) % que->bufSize;
 	return 1;
+}
+
+/*
+ *  Use this when you're done with the fifo
+ *  othervize you're going to have a bad time. ( memory leakages! )
+ */
+void FreeQueue( queue_t *que ) {
+	free( que->buf );
+	que->buf = 0;
+	que->index = que->outdex = que->bufSize = 0;
 }
 
 /*
@@ -48,13 +57,3 @@ void insertArray(Array *a, int element) {
   a->array[a->used++] = element;
 }
 */
-
-/*
- *  Use this when you're done with the fifo
- *  othervize you're going to have a bad time. ( memory leakages! )
- */
-void ShutdownFifo( queSet_t *que ) {
-	free( que->buf );
-	que->buf = 0;
-	que->bufIndex = que->bufSize = 0;
-}

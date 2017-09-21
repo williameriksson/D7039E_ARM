@@ -30,18 +30,6 @@ void fetchData(uint8_t *cmdArray) {
 
 }
 
-void InterpretCmds( uint8_t *rpiCmds, rpiCMD_t *newCMD , mCoords_t *mCoords, setMotor_t *setMotor ) {
-//	*newCMD = rpiCmds[0];
-//	setMotor->speed = (int8_t)rpiCmds[1];
-//	testSpd = rpiCmds[1];
-//	int32_t coords[2];
-//	ByteArrToInt32(&rpiCmds[2], 8, coords);
-//	testCoords[0] = coords[0];
-//	testCoords[1] = coords[1];
-//	mCoords->xpos = coords[0];
-//	mCoords->ypos = coords[1];
-}
-
 /*
  *  Executes the RPI commands on the MCU
  *  FIXME! can a Internal interrupt or a Usonic interrupt, interrupt this?
@@ -62,8 +50,8 @@ uint8_t RunCommand( uint8_t *rpiCmds ) {
 			/*GpioEnable( GPIOA );
 			GpioSetOutput( GPIOA, 5 );
 			GpioSetPinHigh( GPIOA, 5 );*/ 			// set GPIOA 5 high
-			// stop steering
-			// stop control loop interrupts
+			// FIXME! stop steering
+			// FIXME! stop control loop interrupts
 			inControlLoop = 0;
 			break;
 		case MCU_FORWARD :
