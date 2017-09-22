@@ -6,43 +6,44 @@
  */
 
 #include "I2C.h"
+#include "stm32f411xe.h"
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx_nucleo.h"
+#include "utils/GPIO.h"
 
 
 void InitI2C() {
 	// disable interrupts
+
+
 	__disable_irq();
 
 	//Enables clock for GPIOB and I2C interface
 	GpioEnable(GPIOB);
 
-	RCC->APB1ENR|=RCC_APB1ENR_I2C1EN ; // enable APB1 peripheral clock for I2C1
+	RCC->APB1ENR|= RCC_APB1ENR_I2C1EN ; // enable APB1 peripheral clock for I2C1
+
 
 	//SCL on PB6 and SDA on PB7
-	/*
-	GPIOB->MODER	|= GPIO_MODER_MODER6; // set pin to alternate function
-	GPIOB->MODER	|= GPIO_MODER_MODER7; // set pin to alternate function
-	GPIOB-> AFR[0] |= GPIO_AF4_I2C1 << 6; // TODO: IS SHIFTING CORRECT? Set PB6 to AF I2C1_SCL
-	GPIOB-> AFR[0] |= GPIO_AF4_I2C1 << 7; // TODO: IS SHIFTING CORRECT? Set PB7 to AF I2C1_SDA
-	*/
-	GpioSetAF(GPIOB, 6, 4);  // Set PB6 to AF I2C1_SCL
-	GpioSetAF(GPIOB, 7, 4);  // Set PB7 to AF I2C1_SDA
+
+//	GPIOB->MODER	|= GPIO_MODER_MODER6; // set pin to alternate function
+//	GPIOB->MODER	|= GPIO_MODER_MODER7; // set pin to alternate function
+//	GPIOB-> AFR[0] |= GPIO_AF4_I2C1 << 6; // TODO: IS SHIFTING CORRECT? Set PB6 to AF I2C1_SCL
+//	GPIOB-> AFR[0] |= GPIO_AF4_I2C1 << 7; // TODO: IS SHIFTING CORRECT? Set PB7 to AF I2C1_SDA
+//
+	GpioSetAF(GPIOB, 8, 4);  // Set PB6 to AF I2C1_SCL
+	GpioSetAF(GPIOB, 9, 4);  // Set PB7 to AF I2C1_SDA
 
 	//GpioSetOutSpeed(GPIOB, 4, GPIO_)
-
-	GPIOB->OSPEEDR	|= GPIO_OSPEEDER_OSPEEDR6; //set GPIO speed TODO: replace with GpioSetOutSpeed...
-	GPIOB->OSPEEDR	|= GPIO_OSPEEDER_OSPEEDR7; //set GPIO speed TODO: replace with GpioSetOutSpeed...
+	GpioSetOutSpeed(GPIOB, 8, HIGH);
+	GpioSetOutSpeed(GPIOB, 9, HIGH);
 
 	// Below 4 lines needed?
-	GPIOB->OTYPER	|= GPIO_OTYPER_OT_6; // set output to open drain --> the line has to be only pulled low, not driven high
-	GPIOB->OTYPER	|= GPIO_OTYPER_OT_7; // set output to open drain --> the line has to be only pulled low, not driven high
+	 GPIOB->OTYPER	|= GPIO_OTYPER_OT_8; // set output to open drain --> the line has to be only pulled low, not driven high
+	 GPIOB->OTYPER	|= GPIO_OTYPER_OT_9; // set output to open drain --> the line has to be only pulled low, not driven high
 
-	GPIOB->PUPDR	|= GPIO_PUPDR_PUPDR6_0; // enable pull up resistors
-	GPIOB->PUPDR	|= GPIO_PUPDR_PUPDR7_0; // enable pull up resistors
-
-
-
-
-
+	GPIOB->PUPDR	|= GPIO_PUPDR_PUPDR8_0; // enable pull up resistors
+	GPIOB->PUPDR	|= GPIO_PUPDR_PUPDR9_0; // enable pull up resistors
 
 	I2C1->CR2 |= 0b110010; /* 0b110010 == 50Mhz, The FREQ bits must be configured with the APB clock frequency value (I2C peripheral
 									connected to APB). The FREQ field is used by the peripheral to generate data setup and
@@ -62,14 +63,23 @@ void InitI2C() {
 										– RxNE event to 1if ITBUFEN = 1 */
 
 
+//	I2C1->CR1 |= I2C_CR1_ENGC;
+//	I2C1->CR1 |= I2C_CR1_ENPEC;
+//	I2C1->CR1 |= I2C_CR1_ENARP;
+
+	I2C1->CCR |= 0x28;
 	I2C1->CR1 |= I2C_CR1_PE;    // Enable I2C1;
-
-
-
+	I2C1->CR1 |= I2C_CR1_ACK;	// Acknowledge enable, accelerometer/gyro requires ACK mode
 
 	NVIC_EnableIRQ(I2C1_EV_IRQn);
 	NVIC_SetPriority(I2C1_EV_IRQn, 36);
 
 	__enable_irq();
+
+	I2C1->CR1 |= I2C_CR1_START;
+
+
 }
+
+
 

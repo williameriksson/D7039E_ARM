@@ -8,10 +8,10 @@
 #ifndef COM_I2C_H_
 #define COM_I2C_H_
 
-#include "stm32f411xe.h"
-#include "stm32f4xx_hal.h"
-#include "stm32f4xx_nucleo.h"
-#include "utils/GPIO.h"
+#define ACC_GYRO_OUTX_H_G  			0x23
+#define ACC_GYRO_OUTX_L_G  			0X22
+#define SLAVEADDRREAD				0b11010101
+#define SLAVEADDRWRITE				0b11010100
 
 void InitI2C();
 int I2CRead();
