@@ -7,6 +7,7 @@
 #include "stm32f411xe.h"
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_nucleo.h"
+#include "../com/I2C.h"
 
 #include "utils/GPIO.h"
 #include "utils/Cobs.h"
@@ -19,15 +20,12 @@
 
 #define RECEIVE_BUFSIZE 80
 
-#define CTRL9_XL_ADDR 0x18
-#define CTRL1_XL_ADDR 0x10
-#define INT1_CTRL_ADDR 0x0D
-#define STATUS_REG_ADDR 0x1E
-#define OUTX_L_G 0x22
-
 int bufIndex = 0;
 uint8_t rcvBuf[RECEIVE_BUFSIZE];
 uint8_t testCmd = 0;
+
+I2C_STATE CURRENT_I2C_STATE = STOP;
+I2C_MASTER_ROLE CURRENT_I2C_ROLE = TRANSMITTER;
 
 /*
  * FIXME! Change name
@@ -77,55 +75,145 @@ void SPI2_IRQHandler (void) {
 
 
 
+#define nrOfWriteMsgs 6
+uint8_t writeMsgQ[nrOfWriteMsgs] = {CTRL9_XL_ADDR, 0x38, CTRL1_XL_ADDR, 0x60, INT1_CTRL_ADDR, 0x01};
 
-uint8_t writeMsgQ[4] = {CTRL9_XL_ADDR, 0x38, CTRL1_XL_ADDR, 0x60};//, INT1_CTRL_ADDR, 0x01};
-uint8_t readMsgQ[2] = {STATUS_REG_ADDR, OUTX_L_G};
+#define nrOfReadMsgs 2
+uint8_t readMsgQ[nrOfWriteMsgs] = {STATUS_REG_ADDR, OUTX_L_XL};
+
 
 void I2C1_EV_IRQHandler (void) {
-	static volatile int i = 0;
-	uint8_t data;
 
-	uint16_t SR1 = I2C1->SR1;
-	uint16_t SR2 = I2C1->SR2;
+	switch (CURRENT_I2C_STATE) {
 
-	if (SR1 & I2C_SR1_SB) {
-		if (i <= 5) {
-			I2C1->DR = 0b11010100;
-		} else {
-			I2C1->DR = 0b11010101;
-		}
-
-	}
-
-//	if (SR1 & I2C_SR1_ADDR) {
-//		int throw = I2C1->SR2;
-//		//I2C1->DR = writeMsgQ[0];
-////		i++;
-//	}
-
-	// http://www.robot-electronics.co.uk/i2c-tutorial
-	if ((SR1 & I2C_SR1_BTF) || (SR1 & I2C_SR1_TXE)) {
-		//int throw = I2C1->SR2;
-		if (i <= 3) {
-			I2C1->DR = writeMsgQ[i];
-			I2C1->CR1 |= I2C_CR1_START;
-		} /*else if (i == 6){
-			I2C1->CR1 |= I2C_CR1_STOP;
-		} else if (i == 4) {
-			I2C1->CR1 |= I2C_CR1_START;
-		}*/ else {
-			if (SR2 & I2C_SR2_TRA) {
-				I2C1->DR = readMsgQ[1];
-				I2C1->CR1 |= I2C_CR1_START;
-			} else {
-				data = I2C1->DR;
+		case STOP:
+			if ( I2C1->SR1 & I2C_SR1_SB ) {
+				CURRENT_I2C_STATE = START;
 			}
-		}
-		i++;
+			break;
+
+		case START:
+			if (I2C1->SR1 & I2C_SR1_ADDR) {
+				CURRENT_I2C_ROLE = (I2C1->SR2 & I2C_SR2_TRA) ? TRANSMITTER : RECEIVER;
+				CURRENT_I2C_STATE = SAK_REG_ADDR;
+			}
+			break;
+
+		case SAK_REG_ADDR:
+			if ( I2C1->SR1 & I2C_SR1_SB ) {
+				CURRENT_I2C_STATE = REPEATED_START;
+			} else {
+				CURRENT_I2C_STATE = READY_TO_WRITE;
+			}
+			break;
+
+		case REPEATED_START:
+			if ( I2C1->SR1 & I2C_SR1_ADDR ) {
+				CURRENT_I2C_ROLE = (I2C1->SR2 & I2C_SR2_TRA) ? TRANSMITTER : RECEIVER;
+			}
+
+			if (I2C1->SR1 & I2C_SR1_RXNE) {
+				CURRENT_I2C_STATE = RECEIVING;
+			}
+			break;
+
+		case RECEIVING:
+			if (!(I2C1->CR1 & I2C_CR1_ACK)) {
+				CURRENT_I2C_STATE = READ_LAST_BYTE;
+			}
+			break;
+
+		case READ_LAST_BYTE:
+			CURRENT_I2C_STATE = STOP;
+			break;
+
+		case READY_TO_WRITE:
+			CURRENT_I2C_STATE = STOP;
+			break;
+
+		default:
+			break;
 	}
 
-//	data = I2C1->DR;
+	if (CURRENT_I2C_STATE == STOP && (SR1 & I2C_SR1_SB)) {
+		CURRENT_I2C_STATE = START;
+	}
+
+
 }
+
+//void I2C1_EV_IRQHandler (void) {
+//	static volatile int i = 0;
+//	static volatile int sentWriteMsgs = 0;
+//	static volatile int sentReadMsgs = 0;
+//	static volatile uint8_t transmitter = 1;
+//	uint8_t data;
+//
+//
+//	if (I2C1->SR1 & I2C_SR1_SB) {  // Start bit set, Send the slave address and R/W bit
+//		I2C1->CR1 |= I2C_CR1_ACK;
+//		if (sentWriteMsgs < nrOfWriteMsgs) {
+//			I2C1->DR = SLAVEADDRWRITE;
+//		}
+//
+//		else if (sentReadMsgs % 2 == 0) {
+//			I2C1->DR = SLAVEADDRWRITE;
+//		}
+//
+//		else {
+//			I2C1->DR = SLAVEADDRREAD;
+//		}
+//
+//	}
+//
+//	if (I2C1->SR1 & I2C_SR1_ADDR) {					// The slave address has been sent, clear the flag by reading SR2 also.
+//		I2C1->CR1 &= ~I2C_CR1_ACK;					// Clear the ACK bit to generate No master ack event
+//		transmitter = (I2C1->SR2 >> 2) & 1;
+//		//transmitter = (I2C1->SR2 & I2C_SR2_TRA);	// The SR2 register should only be read when ADDR flag is set.
+//													// Check the TRA bit in SR2 to determine if in trans. or rec. mode
+//	}
+//
+//
+//	if (((I2C1->SR1 & I2C_SR1_BTF) || (I2C1->SR1 & I2C_SR1_TXE)) && transmitter >= 1) { // If the byte transfer is completed and in transmitter mode
+//
+//
+//		if (sentWriteMsgs < nrOfWriteMsgs && (i + 1) % 2 == 0) {
+//			I2C1->CR1 |= I2C_CR1_STOP;		// Sub address and data has been sent, send stop sequence
+//			for(int j = 0; j < 5000; j++);	// Ugly wait for a little while, how should this be changed?
+//			I2C1->CR1 |= I2C_CR1_START;
+//		}
+//
+////		else if (sentWriteMsgs >= nrOfWriteMsgs && 1) {
+////
+////		}
+//
+//		else if (sentWriteMsgs < nrOfWriteMsgs) {		// If transmitter and still got write bytes to send
+//			I2C1->DR = writeMsgQ[sentWriteMsgs];		// Send the next write byte
+//			sentWriteMsgs++;
+//		}
+//
+//		else {
+//			I2C1->DR = readMsgQ[1];			// Send read byte
+//			sentReadMsgs++;
+//			I2C1->CR1 |= I2C_CR1_START;
+//		}
+//		i++;
+//
+//
+//
+//	} else if (((I2C1->SR1 & I2C_SR1_BTF) || (I2C1->SR1 & I2C_SR1_RXNE)) && transmitter == 0) { // If the byte transfer is completed and in receiver mode
+//		data = I2C1->DR;
+//		I2C1->CR1 |= I2C_CR1_STOP;
+//		for(int j = 0; j < 5000; j++);	// Ugly wait for a little while, how should this be changed?
+//		I2C1->CR1 |= I2C_CR1_START;
+//	} else {
+////		I2C1->CR1 |= I2C_CR1_STOP;
+//		I2C1->CR1 |= I2C_CR1_START;
+////		sentReadMsgs++;
+//	}
+//
+//
+//}
 
 void Timer_Interrupt_For_ControlLoop( ) {
 

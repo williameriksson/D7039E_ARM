@@ -6,12 +6,10 @@
  */
 
 #include "I2C.h"
-#include "stm32f411xe.h"
-#include "stm32f4xx_hal.h"
-#include "stm32f4xx_nucleo.h"
-#include "utils/GPIO.h"
 
-
+uint8_t testDataLOW;
+uint8_t testDataHIGH;
+int16_t testData;
 void InitI2C() {
 	// disable interrupts
 
@@ -52,6 +50,7 @@ void InitI2C() {
 									50 MHz (peripheral intrinsic maximum limit).*/
 	//I2C1->CR2 &= ~(I2C_CR1_SMBUS); // I2C mode
 	//I2C1->OAR2 = 0x00; 			// Address not relevant in master mode
+	I2C1->CR2 |= I2C_CR2_ITERREN;
 	I2C1->CR2 |= I2C_CR2_ITEVTEN; // Event interrupt enable
 									/* This interrupt is generated when:
 										– SB = 1 (Master)
@@ -60,25 +59,76 @@ void InitI2C() {
 										– STOPF = 1 (Slave)
 										– BTF = 1 with no TxE or RxNE event
 										– TxE event to 1 if ITBUFEN = 1
-										– RxNE event to 1if ITBUFEN = 1 */
+										– RxNE event to 1 if ITBUFEN = 1 */
 
-
-//	I2C1->CR1 |= I2C_CR1_ENGC;
-//	I2C1->CR1 |= I2C_CR1_ENPEC;
-//	I2C1->CR1 |= I2C_CR1_ENARP;
 
 	I2C1->CCR |= 0x28;
 	I2C1->CR1 |= I2C_CR1_PE;    // Enable I2C1;
 	I2C1->CR1 |= I2C_CR1_ACK;	// Acknowledge enable, accelerometer/gyro requires ACK mode
 
-	NVIC_EnableIRQ(I2C1_EV_IRQn);
-	NVIC_SetPriority(I2C1_EV_IRQn, 36);
+	//NVIC_EnableIRQ(I2C1_EV_IRQn);
+	//NVIC_SetPriority(I2C1_EV_IRQn, 36);
 
 	__enable_irq();
 
+	//I2C1->CR1 |= I2C_CR1_START;
+
+
+	I2cWriteByte(SLAVEADDR, CTRL9_XL_ADDR, 0x38);
+	I2cWriteByte(SLAVEADDR, CTRL1_XL_ADDR, 0x60);
+	I2cWriteByte(SLAVEADDR, INT1_CTRL_ADDR, 0x01);
+
+
+
+	while(1) {
+
+		I2cReadByte(SLAVEADDR, OUTX_L_XL, &testDataLOW);
+		I2cReadByte(SLAVEADDR, OUTX_H_XL, &testDataHIGH);
+		testData = (testDataHIGH << 8) | testDataLOW;
+
+
+	}
+
+
+
+
+}
+
+void I2cWriteByte(uint8_t slave_addr, uint8_t reg_addr, uint8_t data) {
+	uint8_t slave_addr_w = slave_addr << 1;
 	I2C1->CR1 |= I2C_CR1_START;
+	while(!(I2C1->SR1 & I2C_SR1_SB));
+	I2C1->DR = slave_addr_w;
+	while(!(I2C1->SR1 & I2C_SR1_ADDR));
+	int SR2 = I2C1->SR2;
+	I2C1->DR = reg_addr;
+	while(!(I2C1->SR1 & I2C_SR1_TXE));
+	I2C1->DR = data;
+	while(!(I2C1->SR1 & I2C_SR1_TXE));
+	I2C1->CR1 |= I2C_CR1_STOP;
+}
 
+void I2cReadByte(uint8_t slave_addr, uint8_t reg_addr, uint8_t *data) {
+	uint8_t slave_addr_r = (slave_addr << 1 | 1);
+	uint8_t slave_addr_w = slave_addr << 1;
 
+	I2C1->CR1 |= I2C_CR1_ACK;
+	I2C1->CR1 |= I2C_CR1_START;
+	while(!(I2C1->SR1 & I2C_SR1_SB));
+	I2C1->DR = slave_addr_w;
+	while(!(I2C1->SR1 & I2C_SR1_ADDR));
+	int SR2 = I2C1->SR2;
+	I2C1->DR = reg_addr;
+	while(!(I2C1->SR1 & I2C_SR1_TXE));
+	I2C1->CR1 |= I2C_CR1_START;
+	while(!(I2C1->SR1 & I2C_SR1_SB));
+	I2C1->DR = slave_addr_r;
+	while(!(I2C1->SR1 & I2C_SR1_ADDR));
+	I2C1->CR1 &= ~I2C_CR1_ACK;
+	SR2 = I2C1->SR2;
+	while(!(I2C1->SR1 & I2C_SR1_RXNE));
+	*data = I2C1->DR;
+	I2C1->CR1 |= I2C_CR1_STOP;
 }
 
 
