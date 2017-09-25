@@ -54,10 +54,16 @@ void InitI2C() {
 										– TxE event to 1 if ITBUFEN = 1
 										– RxNE event to 1 if ITBUFEN = 1 */
 
+	I2C1->CR2 |= I2C_CR2_ITBUFEN;
 
 	I2C1->CCR |= 0x28;
 	I2C1->CR1 |= I2C_CR1_PE;    // Enable I2C1;
 	I2C1->CR1 |= I2C_CR1_ACK;	// Acknowledge enable, accelerometer/gyro requires ACK mode
+
+
+	I2cWriteByte(SLAVEADDR, CTRL9_XL_ADDR, 0x38);
+	I2cWriteByte(SLAVEADDR, CTRL1_XL_ADDR, 0x60);
+	I2cWriteByte(SLAVEADDR, INT1_CTRL_ADDR, 0x01);
 
 	NVIC_EnableIRQ(I2C1_EV_IRQn);
 	NVIC_SetPriority(I2C1_EV_IRQn, 36);
@@ -67,12 +73,11 @@ void InitI2C() {
 
 	__enable_irq();
 
-	I2C1->CR1 |= I2C_CR1_START;
 
-	//testI2C();
-//	I2cWriteByte(SLAVEADDR, CTRL9_XL_ADDR, 0x38);
-//	I2cWriteByte(SLAVEADDR, CTRL1_XL_ADDR, 0x60);
-//	I2cWriteByte(SLAVEADDR, INT1_CTRL_ADDR, 0x01);
+
+	testI2C();
+
+	//I2C1->CR1 |= I2C_CR1_START;
 //
 //
 //
@@ -113,270 +118,55 @@ void I2C1_ER_IRQHandler(void) {
 uint8_t initBytes[nrOfInitBytes] = {CTRL9_XL_ADDR, 0x38, CTRL1_XL_ADDR, 0x60, INT1_CTRL_ADDR, 0x01};
 
 #define nrOfReadBytes 1
-uint8_t readBytes[nrOfReadBytes] = {OUTX_L_XL};
+uint8_t readBytes[nrOfReadBytes] = {OUTX_H_XL};
 
-uint8_t data;
+int16_t data;
 int initCount = 0;
+int repeatedStart = 0;
 void I2C1_EV_IRQHandler (void) {
 	nrInterrupts++;
 
+	if (I2C1->SR1 & I2C_SR1_SB) {
+		if (repeatedStart == 1) {
+			I2C1->DR = ((SLAVEADDR << 1) | 1);
+		} else {
+			I2C1->DR = (SLAVEADDR << 1);
+		}
+	}
 
-	switch (CURRENT_I2C_STATE) {
+	else if (I2C1->SR1 & I2C_SR1_ADDR) {
+		if (repeatedStart == 1) {
+			I2C1->CR1 &= ~I2C_CR1_ACK;
+			int SR2 = I2C1->SR2;
+		} else {
+			int SR2 = I2C1->SR2;
+			I2C1->DR = readBytes[0];
+		}
 
-		case START:
-			if ( I2C1->SR1 & I2C_SR1_SB ) {
-				if (initCount < nrOfInitBytes) {
-					I2C1->DR = (SLAVE_ADDR << 1);
-				} else if (CURRENT_I2C_ROLE == TRANSMITTER) {
-					I2C1->DR = (SLAVE_ADDR << 1) | 1;
-				} else {
-					I2C1->DR = (SLAVE_ADDR << 1);
-				}
-				CURRENT_I2C_STATE = SLAVE_ADDR;
-				I2C1->SR1 &= ~I2C_SR1_SB;
-			}
-			break;
+	}
 
-		case SLAVE_ADDR:
-			if (I2C1->SR1 & I2C_SR1_ADDR) {
-				CURRENT_I2C_ROLE = (I2C1->SR2 & I2C_SR2_TRA) ? TRANSMITTER : RECEIVER;
-				if (CURRENT_I2C_ROLE == TRANSMITTER) {
-					CURRENT_I2C_STATE = REG_ADDR;
-				} else {
-					CURRENT_I2C_STATE = RECEIVE;
-				}
-			}
-			break;
+	else if ((I2C1->SR1 & I2C_SR1_TXE) && !(I2C1->SR1 & I2C_SR1_ADDR)) {
+		I2C1->CR1 |= I2C_CR1_START;
+		repeatedStart = 1;
+	}
 
-		case REG_ADDR:
+	else if (I2C1->SR1 & I2C_SR1_RXNE) {
+		data = (I2C1->DR << 8);
+		repeatedStart = 0;
+		I2C1->CR1 |= I2C_CR1_STOP;
+	}
 
-			if ( I2C1->SR1 & I2C_SR1_SB ) {
-				CURRENT_I2C_STATE = START;
-			} else if (I2C1->SR1 & I2C_SR1_TXE) {
+}
 
-				if (initCount < nrOfInitBytes) {
-					I2C1->DR = initBytes[initCount];
-					initCount++;
-					CURRENT_I2C_STATE = TRANSMIT;
-				} else {
-					I2C1->CR1 |= I2C_CR1_START;
-					I2C1->DR = readBytes[0];
-					CURRENT_I2C_STATE = RECEIVE;
-				}
-			}
+void testI2C() {
+	while (1) {
+		for(int i = 0; i < 10000000; i++);
+		I2C1->CR1 |= I2C_CR1_ACK;
+		I2C1->CR1 |= I2C_CR1_START;
 
-			break;
-
-		case RECEIVE:
-			if ( I2C1->CR1 & I2C_CR1_STOP ) {
-				CURRENT_I2C_STATE = STOP;
-			} else if (I2C1->SR1 & I2C_SR1_RXNE) {
-				data = I2C1->DR;
-			}
-			break;
-
-		case TRANSMIT:
-			if ( I2C1->CR1 & I2C_CR1_STOP ) {
-				CURRENT_I2C_STATE = STOP;
-			}
-			if ((initCount < nrOfInitBytes) && (I2C1->SR1 & I2C_SR1_TXE)) {
-				I2C1->DR = initBytes[initCount];
-				initCount++;
-				I2C1->CR1 |= I2C_CR1_STOP;
-				CURRENT_I2C_STATE = STOP;
-			}
-			break;
-
-		case STOP:
-			I2C1->CR1 |= I2C_CR1_START;
-			if (I2C1->CR1 & I2C_CR1_START)
-			CURRENT_I2C_STATE = START;
-			break;
-
-		default:
-			break;
 	}
 }
 
-
-
-
-
-//void testI2C() {
-//	int initCount = 0;
-//
-//	while (1) {
-//		for(int i = 0; i < 50000; i++);
-//
-//		switch (CURRENT_I2C_STATE) {
-//
-//			case STOP:
-//				I2C1->CR1 |= I2C_CR1_START;
-//				break;
-//
-//			case START:
-//
-//				break;
-//
-//			case SLAVE_ADDR:
-//				if (initCount < nrOfInitBytes) {
-//					I2C1->DR = (SLAVE_ADDR << 1);
-//				} else if (CURRENT_I2C_ROLE == TRANSMITTER) {
-//					I2C1->DR = (SLAVE_ADDR << 1) | 1;
-//				} else {
-//					I2C1->DR = (SLAVE_ADDR << 1);
-//				}
-//				break;
-//
-//
-//			case REG_ADDR:
-//				if (initCount < nrOfInitBytes) {
-//					I2C1->DR = initBytes[initCount];
-//					initCount++;
-//				} else {
-//					I2C1->CR1 |= I2C_CR1_START;
-//					I2C1->DR = readBytes[0];
-//				}
-//				break;
-//
-//			case RECEIVE:
-//				if ( I2C1->SR1 & I2C_SR1_RXNE ) {
-//					data = I2C1->DR;
-//				}
-//				break;
-//
-//			case TRANSMIT:
-//				if ((initCount < nrOfInitBytes) && (I2C1->SR1 & I2C_SR1_TXE)) {
-//					I2C1->DR = initBytes[initCount];
-//					initCount++;
-//					I2C1->CR1 |= I2C_CR1_STOP;
-//					//CURRENT_I2C_STATE = STOP;
-//				}
-//				break;
-//
-//			default:
-//				break;
-//		}
-//
-//
-//
-//	}
-//}
-
-//void I2C1_EV_IRQHandler (void) {
-//	nrInterrupts++;
-//
-//	switch (CURRENT_I2C_STATE) {
-//
-//		case START:
-//			if ( I2C1->SR1 & I2C_SR1_SB ) {
-//				CURRENT_I2C_STATE = SLAVE_ADDR;
-//				I2C1->SR1 &= ~I2C_SR1_SB;
-//			}
-//			break;
-//
-//		case SLAVE_ADDR:
-//			if (I2C1->SR1 & I2C_SR1_ADDR) {
-//				CURRENT_I2C_ROLE = (I2C1->SR2 & I2C_SR2_TRA) ? TRANSMITTER : RECEIVER;
-//				if (CURRENT_I2C_ROLE == TRANSMITTER) {
-//					CURRENT_I2C_STATE = REG_ADDR;
-//				} else {
-//					CURRENT_I2C_STATE = RECEIVE;
-//				}
-//			}
-//			break;
-//
-//		case REG_ADDR:
-//			if ( I2C1->SR1 & I2C_SR1_SB ) {
-//				CURRENT_I2C_STATE = START;
-//				I2C1->SR1 &= ~I2C_SR1_SB;
-//			} else if (I2C1->SR1 & I2C_SR1_TXE) {
-//				CURRENT_I2C_STATE = TRANSMIT;
-//			}
-//			break;
-//
-//		case RECEIVE:
-//			if ( I2C1->CR1 & I2C_CR1_STOP ) {
-//				CURRENT_I2C_STATE = STOP;
-//			}
-//			break;
-//
-//		case TRANSMIT:
-//			if ( I2C1->CR1 & I2C_CR1_STOP ) {
-//				CURRENT_I2C_STATE = STOP;
-//			}
-//			break;
-//
-//		case STOP:
-//			if (I2C1->CR1 & I2C_CR1_START)
-//			CURRENT_I2C_STATE = START;
-//			break;
-//
-//		default:
-//			break;
-//	}
-//}
-
-
-//void I2C1_EV_IRQHandler (void) {
-//
-//	switch (CURRENT_I2C_STATE) {
-//
-//		case STOP:
-//			if ( I2C1->SR1 & I2C_SR1_SB ) {
-//				CURRENT_I2C_STATE = START;
-//			}
-//			break;
-//
-//		case START:
-//			if (I2C1->SR1 & I2C_SR1_ADDR) {
-//				CURRENT_I2C_ROLE = (I2C1->SR2 & I2C_SR2_TRA) ? TRANSMITTER : RECEIVER;
-//				CURRENT_I2C_STATE = SAK_REG_ADDR;
-//			}
-//			break;
-//
-//		case SAK_REG_ADDR:
-//			if ( I2C1->SR1 & I2C_SR1_SB ) {
-//				CURRENT_I2C_STATE = REPEATED_START;
-//			} else {
-//				CURRENT_I2C_STATE = READY_TO_WRITE;
-//			}
-//			break;
-//
-//		case REPEATED_START:
-//			if ( I2C1->SR1 & I2C_SR1_ADDR ) {
-//				CURRENT_I2C_ROLE = (I2C1->SR2 & I2C_SR2_TRA) ? TRANSMITTER : RECEIVER;
-//			}
-//
-//			if (I2C1->SR1 & I2C_SR1_RXNE) {
-//				CURRENT_I2C_STATE = RECEIVING;
-//			}
-//			break;
-//
-//		case RECEIVING:
-//			if (!(I2C1->CR1 & I2C_CR1_ACK)) {
-//				CURRENT_I2C_STATE = READ_LAST_BYTE;
-//			}
-//			break;
-//
-//		case READ_LAST_BYTE:
-//			CURRENT_I2C_STATE = STOP;
-//			break;
-//
-//		case READY_TO_WRITE:
-//			CURRENT_I2C_STATE = STOP;
-//			break;
-//
-//		default:
-//			break;
-//	}
-//
-////	if (CURRENT_I2C_STATE == STOP && (SR1 & I2C_SR1_SB)) {
-////		CURRENT_I2C_STATE = START;
-////	}
-//
-//
-//}
 
 void I2cWriteByte(uint8_t slave_addr, uint8_t reg_addr, uint8_t data) {
 	uint8_t slave_addr_w = slave_addr << 1;
