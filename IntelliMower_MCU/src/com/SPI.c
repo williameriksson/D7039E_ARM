@@ -37,7 +37,7 @@ void InitSPI () {
 //	GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR15;
 
 	//SPI settings. RX_ONLY enabled
-	SPI2->CR1 |= SPI_CR1_RXONLY;
+	//SPI2->CR1 |= SPI_CR1_RXONLY;
 
 	//Enables recieve not empty interrupt
 	SPI2->CR2 |= SPI_CR2_RXNEIE;
