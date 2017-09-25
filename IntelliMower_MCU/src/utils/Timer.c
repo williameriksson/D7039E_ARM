@@ -44,6 +44,10 @@ void InitTimerInterrupt(TIM_TypeDef *timerReg, int timeDelay) {
 	NVIC_SetPriority(irqType, 20);
 }
 
+void StopTimerInterrupt(TIM_TypeDef *timerReg) {
+	timerReg->DIER &= ~(TIM_DIER_UIE);
+}
+
 /*
  * Intializes a timer registser (TIM 1-5 / 9-11 for PWM generation)
  * CAUTION: can run 4 / 2 different pulse widths per timer but only 1 frequency due to shared ARR regs.
@@ -113,22 +117,22 @@ void TimerSetPWM(TIM_TypeDef *timerReg, uint8_t channel, int pulseWidthMicroSec,
 
 	switch(channel) {
 	case 1:
-		timerReg->CCR1 = (timerReg->ARR) - pulseWidth;
+		timerReg->CCR1 = (timerReg->ARR) - pulseWidth + 1;
 		timerReg->CCMR1 |= TIM_CCMR1_OC1M;
 		timerReg->CCMR1 |= TIM_CCMR1_OC1PE;
 		break;
 	case 2:
-		timerReg->CCR2 = (timerReg->ARR) - pulseWidth;
+		timerReg->CCR2 = (timerReg->ARR) - pulseWidth + 1;
 		timerReg->CCMR1 |= TIM_CCMR1_OC2M;
 		timerReg->CCMR1 |= TIM_CCMR1_OC2PE;
 		break;
 	case 3:
-		timerReg->CCR3 = (timerReg->ARR) - pulseWidth;
+		timerReg->CCR3 = (timerReg->ARR) - pulseWidth + 1;
 		timerReg->CCMR2 |= TIM_CCMR2_OC3M;
 		timerReg->CCMR2 |= TIM_CCMR2_OC3PE;
 		break;
 	case 4:
-		timerReg->CCR4 = (timerReg->ARR) - pulseWidth;
+		timerReg->CCR4 = (timerReg->ARR) - pulseWidth + 1;
 		timerReg->CCMR2 |= TIM_CCMR2_OC4M;
 		timerReg->CCMR2 |= TIM_CCMR2_OC4PE;
 		break;

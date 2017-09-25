@@ -5,10 +5,10 @@ MotorController leftMotorController = {
 		.channel = 1,
 		.gpio = GPIOA,
 		.pin = 5,
-		.pwmMin = 1000,
-		.pwmMax = 2000,
-		.frequency = 50,
-		.pulseWidth = 1500,
+		.pwmMin = 1,
+		.pwmMax = 49,
+		.frequency = 20000,
+		.pulseWidth = 25,
 	};
 
 MotorController rightMotorController = {
@@ -16,17 +16,15 @@ MotorController rightMotorController = {
 		.channel = 3,
 		.gpio = GPIOB,
 		.pin = 10,
-		.pwmMin = 1000,
-		.pwmMax = 2000,
-		.frequency = 50,
-		.pulseWidth = 1500,
+		.pwmMin = 1,
+		.pwmMax = 49,
+		.frequency = 20000,
+		.pulseWidth = 25,
 	};
 
 void InitSteering() {
 	InitMotorControl(&leftMotorController);
 	InitMotorControl(&rightMotorController);
-	SetMotorSpeed(&leftMotorController, 0);
-	SetMotorSpeed(&rightMotorController, 0);
 }
 
 //Set motors to equal speed to drive straight forward.

@@ -15,6 +15,7 @@ typedef enum {
 	MCU_LEFT 	= 0x04,
 	MCU_RIGHT 	= 0x05,
 	MCU_MOVE 	= 0x06,			// goes into the control loop and listens to feed from rpi
+	MCU_FEED	= 0x07,
 	MCU_NULL	= 0x00,
 } rpiCMD_t;
 

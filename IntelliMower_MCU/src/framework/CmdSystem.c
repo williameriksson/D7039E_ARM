@@ -6,6 +6,7 @@
 #include "framework/CmdSystem.h"
 #include "motors/Steering.h"
 #include "utils/convertions/intLib.h"
+#include "utils/Geometry.h"
 #include "framework/ControlLoop.h"
 
 
@@ -38,20 +39,17 @@ uint8_t RunCommand( uint8_t *rpiCmds ) {
 	rpiCMD_t newCMD = rpiCmds[0];
 	setMotor_t setMotor = { .speed = (int8_t)rpiCmds[1] };
 	testSpd = setMotor.speed;
-	int32_t coordinates[2] = {0, 0};
+	int32_t coordinates[4] = {0, 0, 0, 0};
 	// catch if no cmd was sent
 	if( newCMD  == MCU_NULL ) return 0;
 
 	// if control loop is activated a MCU_STOP is required all other cmd's are ignored
-	if (newCMD  != MCU_STOP && inControlLoop  ) return 0;
+	if (newCMD  != MCU_STOP && inControlLoop && newCMD != MCU_FEED  ) return 0;
 
 	switch ( newCMD ) {
 		case MCU_STOP :
-			/*GpioEnable( GPIOA );
-			GpioSetOutput( GPIOA, 5 );
-			GpioSetPinHigh( GPIOA, 5 );*/ 			// set GPIOA 5 high
-			// FIXME! stop steering
-			// FIXME! stop control loop interrupts
+			DriveForward(0);
+			StopController();
 			inControlLoop = 0;
 			break;
 		case MCU_FORWARD :
@@ -71,15 +69,25 @@ uint8_t RunCommand( uint8_t *rpiCmds ) {
 			RotateRight( setMotor.speed );
 			break;
 		case MCU_MOVE :
-			ByteArrToInt32(&rpiCmds[2], 8, coordinates);
-			mCoords_t mCoords = { .xpos = coordinates[0], .ypos = coordinates[1] };
+			ByteArrToInt32(&rpiCmds[2], 16, coordinates);
 			inControlLoop = 1;
 			// start internal interrupts that handle the control loop
 			// FIXME! feed mCoords to control loop make an fifo in there
+			Point currentPos = { .x = coordinates[0], .y = coordinates[1]};
+			Point target = { .x = coordinates[2], .y = coordinates[3]};
+			InitControlLoop(&currentPos, &target);
+			break;
+		case MCU_FEED :
+			ByteArrToInt32(&rpiCmds[1], 8, coordinates);
+			Point newPos = { .x = coordinates[0], .y = coordinates[1] };
+			testCoords[0] = newPos.x;
+			testCoords[1] = newPos.y;
+			UpdatePIDValue(&newPos);
 			break;
 		case MCU_NULL :
 			// never gets here
 			break;
+		//TODO: implement POS FEED command to update PID with current POS.
 		default :
 			return 0;
 			break;

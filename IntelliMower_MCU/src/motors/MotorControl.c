@@ -23,7 +23,7 @@ void SetMotorSpeed(MotorController *motorController, int percentage) {
 
 	else if(newPWM > motorController->pwmMax) { TimerSetPWM(motorController->timer, motorController->channel, motorController->pwmMax, motorController->frequency); }
 
-	else TimerSetPWM(motorController->timer, motorController->channel, newPWM, 50); //sets the new PWM
+	else TimerSetPWM(motorController->timer, motorController->channel, newPWM, motorController->frequency); //sets the new PWM
 }
 
 //returns what speed the motors are supposed to be running at(based on PWM)

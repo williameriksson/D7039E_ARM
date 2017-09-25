@@ -13,11 +13,12 @@
 
 #include "InterruptHandlers.h"
 #include "CmdSystem.h"
+#include "framework/ControlLoop.h"
 
 
 // private variables
 
-#define RECEIVE_BUFSIZE 80
+#define RECEIVE_BUFSIZE 128
 
 int bufIndex = 0;
 uint8_t rcvBuf[RECEIVE_BUFSIZE];
@@ -63,12 +64,10 @@ void SPI2_IRQHandler (void) {
 
 }
 
-/*
- *  In the control loop while motor pwm and pid is running.
- *  Alternatively sleep for next internal interrupt
- *  FIXME! Change name
- */
-void Timer_Interrupt_For_ControlLoop( ) {
-
-
+//currently assigned by ControlLoop.c as internal interrupt for PID
+void TIM1_BRK_TIM9_IRQHandler() {
+	LoopController();
+	TIM9->SR &= ~TIM_SR_TIF;
 }
+
+
