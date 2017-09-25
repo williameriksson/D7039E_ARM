@@ -94,6 +94,75 @@ void InitI2C() {
 
 }
 
+#define nrOfWriteMsgs 6
+uint8_t writeMsgQ[nrOfWriteMsgs] = {CTRL9_XL_ADDR, 0x38, CTRL1_XL_ADDR, 0x60, INT1_CTRL_ADDR, 0x01};
+
+#define nrOfReadMsgs 2
+uint8_t readMsgQ[nrOfWriteMsgs] = {STATUS_REG_ADDR, OUTX_L_XL};
+
+I2C_STATE CURRENT_I2C_STATE = STOP;
+I2C_MASTER_ROLE CURRENT_I2C_ROLE = TRANSMITTER;
+
+void I2C1_EV_IRQHandler (void) {
+
+	switch (CURRENT_I2C_STATE) {
+
+		case STOP:
+			if ( I2C1->SR1 & I2C_SR1_SB ) {
+				CURRENT_I2C_STATE = START;
+			}
+			break;
+
+		case START:
+			if (I2C1->SR1 & I2C_SR1_ADDR) {
+				CURRENT_I2C_ROLE = (I2C1->SR2 & I2C_SR2_TRA) ? TRANSMITTER : RECEIVER;
+				CURRENT_I2C_STATE = SAK_REG_ADDR;
+			}
+			break;
+
+		case SAK_REG_ADDR:
+			if ( I2C1->SR1 & I2C_SR1_SB ) {
+				CURRENT_I2C_STATE = REPEATED_START;
+			} else {
+				CURRENT_I2C_STATE = READY_TO_WRITE;
+			}
+			break;
+
+		case REPEATED_START:
+			if ( I2C1->SR1 & I2C_SR1_ADDR ) {
+				CURRENT_I2C_ROLE = (I2C1->SR2 & I2C_SR2_TRA) ? TRANSMITTER : RECEIVER;
+			}
+
+			if (I2C1->SR1 & I2C_SR1_RXNE) {
+				CURRENT_I2C_STATE = RECEIVING;
+			}
+			break;
+
+		case RECEIVING:
+			if (!(I2C1->CR1 & I2C_CR1_ACK)) {
+				CURRENT_I2C_STATE = READ_LAST_BYTE;
+			}
+			break;
+
+		case READ_LAST_BYTE:
+			CURRENT_I2C_STATE = STOP;
+			break;
+
+		case READY_TO_WRITE:
+			CURRENT_I2C_STATE = STOP;
+			break;
+
+		default:
+			break;
+	}
+
+//	if (CURRENT_I2C_STATE == STOP && (SR1 & I2C_SR1_SB)) {
+//		CURRENT_I2C_STATE = START;
+//	}
+
+
+}
+
 void I2cWriteByte(uint8_t slave_addr, uint8_t reg_addr, uint8_t data) {
 	uint8_t slave_addr_w = slave_addr << 1;
 	I2C1->CR1 |= I2C_CR1_START;
