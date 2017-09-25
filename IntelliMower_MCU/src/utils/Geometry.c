@@ -1,24 +1,22 @@
 #include "Geometry.h"
 
-void initLineTwoPoints(line *l, double x1, double y1, double x2, double y2) {
-	l->k = (y2 - y1) / (x2 - x1);
-	l->m = y1 - l->k * x1;
-	l->x1 = x1;
-	l->y1 = y1;
-	l->x2 = x2;
-	l->y2 = y2;
+void InitLineTwoPoints(Line *l, Point *pointA, Point *pointB) {
+	l->k = (pointB->y - pointA->y) / (pointB->x - pointA->x);
+	l->m = pointA->y - l->k * pointA->x;
+	l->start = pointA;
+	l->end = pointB;
 }
 
-double getDistanceFromLine(line *l, double x, double y) {
+double GetDistancePointToLine(Line *l, Point *point) {
 	// Determine on which side of the line the point is
-	double sign = (x - l->x1) * (l->y2 - l->y1) - (y - l->y1) * (l->x2 - l->x1);
+	double sign = (point->x - l->start->x) * (l->end->y - l->start->y) - (point->y - l->start->y) * (l->end->x - l->start->x);
 
 	if (sign == 0.0) {
 		return sign;
 	}
 
 	// Calculate the orthogonal distance between the line and the point
-	double d = fabs((l->x2 - l->x1) * (l->y1 - y) * (l->y2 - l->y1)) / sqrt( pow((l->x2 - l->x1), 2) + pow((l->y2 - l->y1), 2) );
+	double d = fabs((l->end->x - l->start->x) * (l->start->y - point->y) * (l->end->y - l->start->y)) / sqrt( pow((l->end->x - l->start->x), 2) + pow((l->end->y - l->start->y), 2) );
 
 	if (sign < 0.0) {
 		return -d;

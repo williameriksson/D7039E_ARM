@@ -11,16 +11,21 @@
 #include <math.h>
 
 typedef struct {
+	double x;
+	double y;
+} Point;
+
+typedef struct {
 	double k;
 	double m;
-	double x1;
-	double y1;
-	double x2;
-	double y2;
-} line;
+	Point *start;
+	Point *end;
+} Line;
 
-void initLineTwoPoints(line*, double, double, double, double);
-double getDistanceFromLine(line*, double, double);
+
+void InitLineTwoPoints(Line*, Point*, Point*);
+double GetDistancePointToLine(Line*, Point*);
+int Equals(Point*, Point*);
 
 
 #endif /* UTILS_GEOMETRY_H_ */

@@ -5,13 +5,15 @@
 #include "utils/GPIO.h"
 #include "framework/CmdSystem.h"
 #include "motors/Steering.h"
+#include "utils/convertions/intLib.h"
+#include "framework/ControlLoop.h"
 
 
 // private variables
 static volatile uint8_t inControlLoop = 0x00;
 
 int8_t testSpd = 0;
-
+int32_t testCoords[2];
 //
 typedef struct {
 	int32_t xpos;
@@ -24,30 +26,7 @@ typedef struct {
 	int8_t speed;
 } setMotor_t;
 
-/*
- *
- */
-uint32_t GetCoord( uint8_t *rpiCmds, uint32_t posIndex ) {
-
-	uint32_t leTmp = 0;
-	/*leTmp |= rpiCmds[posIndex];
-	leTmp = leTmp << 8;
-	leTmp |= rpiCmds[posIndex+1];
-	leTmp = mCoords->xpos << 8;
-	leTmp |= rpiCmds[posIndex+2];
-	leTmp = mCoords->xpos << 8;
-	leTmp |= rpiCmds[posIndex+3];*/
-
-	return leTmp;
-}
-
-/*
- *
- */
-void InterpretCmds( uint8_t *rpiCmds, rpiCMD_t *newCMD , mCoords_t *mCoords, setMotor_t *setMotor ) {
-	*newCMD = rpiCmds[0];
-	setMotor->speed = (int8_t)rpiCmds[1];
-	testSpd = rpiCmds[1];
+void fetchData(uint8_t *cmdArray) {
 
 }
 
@@ -56,12 +35,10 @@ void InterpretCmds( uint8_t *rpiCmds, rpiCMD_t *newCMD , mCoords_t *mCoords, set
  *  FIXME! can a Internal interrupt or a Usonic interrupt, interrupt this?
  */
 uint8_t RunCommand( uint8_t *rpiCmds ) {
-	rpiCMD_t newCMD 	= MCU_NULL;
-	mCoords_t mCoords 	= { .xpos = 0, .ypos = 0 };
-	setMotor_t setMotor = { .speed = 0 };
-
-	InterpretCmds( rpiCmds, &newCMD, &mCoords, &setMotor );
-
+	rpiCMD_t newCMD = rpiCmds[0];
+	setMotor_t setMotor = { .speed = (int8_t)rpiCmds[1] };
+	testSpd = setMotor.speed;
+	int32_t coordinates[2] = {0, 0};
 	// catch if no cmd was sent
 	if( newCMD  == MCU_NULL ) return 0;
 
@@ -69,7 +46,6 @@ uint8_t RunCommand( uint8_t *rpiCmds ) {
 	if (newCMD  != MCU_STOP && inControlLoop  ) return 0;
 
 	switch ( newCMD ) {
-
 		case MCU_STOP :
 			/*GpioEnable( GPIOA );
 			GpioSetOutput( GPIOA, 5 );
@@ -95,10 +71,11 @@ uint8_t RunCommand( uint8_t *rpiCmds ) {
 			RotateRight( setMotor.speed );
 			break;
 		case MCU_MOVE :
-
+			ByteArrToInt32(&rpiCmds[2], 8, coordinates);
+			mCoords_t mCoords = { .xpos = coordinates[0], .ypos = coordinates[1] };
+			inControlLoop = 1;
 			// start internal interrupts that handle the control loop
 			// FIXME! feed mCoords to control loop make an fifo in there
-			inControlLoop = 1;
 			break;
 		case MCU_NULL :
 			// never gets here
