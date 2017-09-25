@@ -66,3 +66,9 @@ void StopController() {
 	StopTimerInterrupt(TIM9);
 }
 
+//currently assigned by ControlLoop.c as internal interrupt for PID
+void TIM1_BRK_TIM9_IRQHandler() {
+	LoopController();
+	TIM9->SR &= ~TIM_SR_TIF;
+}
+
