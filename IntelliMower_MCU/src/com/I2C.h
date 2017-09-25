@@ -22,16 +22,25 @@
 #define OUTX_L_XL 					0x28
 #define OUTX_H_XL 					0x29
 
-
 typedef enum {
 	START,
-	SAK_REG_ADDR,
-	REPEATED_START,
-	RECEIVING,
-	READ_LAST_BYTE,
-	READY_TO_WRITE,
+	SLAVE_ADDR,
+	REG_ADDR,
+	TRANSMIT,
+	RECEIVE,
 	STOP
 } I2C_STATE;
+
+
+//typedef enum {
+//	START,
+//	SAK_REG_ADDR,
+//	REPEATED_START,
+//	RECEIVING,
+//	READ_LAST_BYTE,
+//	READY_TO_WRITE,
+//	STOP
+//} I2C_STATE;
 
 typedef enum {
 	TRANSMITTER,
