@@ -12,7 +12,11 @@
 
 // private variables
 #define RECEIVE_BUFSIZE 128
-#define TRANSMIT_BUFSIZE 3
+#define TRANSMIT_BUFSIZE 2
+#define INIT_BUFSIZE 2
+
+#define READ_Y_L 0x2A + 0x80
+#define READ_Y_H 0x2B + 0x80
 
 int bufIndex = 0;
 uint8_t rcvBuf[RECEIVE_BUFSIZE];
@@ -23,8 +27,12 @@ int accRcvBufIndex = 0;
 uint8_t accRcvBuf[RECEIVE_BUFSIZE];
 
 
+int accInitBufIndex = 0;
+uint8_t accInitBuf[INIT_BUFSIZE] = {0x20, 0x67};
+
+
 int accTraBufIndex = 0;
-uint8_t accTraBuf[TRANSMIT_BUFSIZE] = {0x20, 0x67, 0x2B + 0x80};
+uint8_t accTraBuf[TRANSMIT_BUFSIZE] = {READ_Y_L, READ_Y_H};
 
 void InitSPI () {
 
@@ -95,8 +103,11 @@ void InitSPI1() {
 	//SPI settings. RX_ONLY enabled
 	//SPI2->CR1 |= SPI_CR1_RXONLY;
 
-
+	//SPI1->CR1 |= 0x08; // Baud rate fpclk / 4
+	//SPI1->CR1 |= 0x10; // Baud rate fpclk / 8
 	SPI1->CR1 |= 0x18; // Baud rate fpclk / 16
+	//SPI1->CR1 |= 0x30; // Baud rate fpclk / 128
+	//SPI1->CR1 |= 0x38; // Baud rate fpclk / 256
 	//SPI1->CR1 |= SPI_CR1_CPOL;
 
 	SPI1->CR2 |= SPI_CR2_TXEIE;
@@ -154,22 +165,38 @@ void InitSPI1() {
 
 }
 
-int8_t rcvTest;
+
+uint8_t y_acc_low;
+uint8_t y_acc_high;
+int16_t y_acc;
 void SPI1_IRQHandler (void) {
 
 	if (SPI1->SR & SPI_SR_TXE) {
 
-		SPI1->DR = accTraBuf[accTraBufIndex];
+		if (accInitBufIndex < INIT_BUFSIZE) {
+			SPI1->DR = accInitBuf[accInitBufIndex];
+			accInitBufIndex++;
+		} else {
 
-		if (accTraBufIndex < 2) {
-			accTraBufIndex++;
+
+			SPI1->DR = accTraBuf[accTraBufIndex];
+			if (accTraBufIndex < (TRANSMIT_BUFSIZE - 1)) {
+				accTraBufIndex++;
+			} else {
+				accTraBufIndex = 0;
+			}
+
 		}
-
 	}
 
 	if ( SPI1->SR & SPI_SR_RXNE ) {
 
-		rcvTest = SPI1->DR;
+		if (accTraBufIndex < TRANSMIT_BUFSIZE - 1) {
+			y_acc_low = SPI1->DR;
+		} else {
+			y_acc_high = SPI1->DR;
+			y_acc = ((y_acc_high << 8) | y_acc_low);
+		}
 		//accRcvBufIndex++;
 	}
 
