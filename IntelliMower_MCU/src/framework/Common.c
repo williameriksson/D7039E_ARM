@@ -18,8 +18,9 @@ volatile int quitProgram   = 0;
  */
 void CommonInit() {
 	// place all inits here
-	InitSPI();
-	InitSteering();
+	InitSPI1();
+	//InitSteering();
+	//InitI2C();
 	isInitialized = 1;
 }
 
