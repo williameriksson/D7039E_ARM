@@ -5,7 +5,7 @@
 
 #include "utils/Geometry.h"
 
-void InitControlLoop(Point *startPoint, Point *targetPoint);
+void InitControlLoop(Point *startPoint, Point *targetPoint, int speed);
 void LoopController();
 void UpdatePIDValue(Point *newPos);
 void StopController();

@@ -15,6 +15,7 @@ MotorController leftMotorController = {
 		.pwmMax = 49,
 		.frequency = 20000,
 		.pulseWidth = 25,
+		.currentSpeed = 0,
 	};
 
 MotorController rightMotorController = {
@@ -26,7 +27,13 @@ MotorController rightMotorController = {
 		.pwmMax = 49,
 		.frequency = 20000,
 		.pulseWidth = 25,
+		.currentSpeed = 0,
 	};
+
+int leftSpeedGlobal;
+int rightSpeedGlobal;
+int leftPwGlobal;
+int rightPwGlobal;
 
 void InitSteering() {
 	InitMotorControl(&leftMotorController);
@@ -36,8 +43,9 @@ void InitSteering() {
 //Set motors to equal speed to drive straight forward.
 int DriveForward(int speed) {
 	if(speed > 100 || speed < -100) {
-		SetMotorSpeed(&leftMotorController, 100*(speed/abs(speed)));
-		SetMotorSpeed(&rightMotorController, 100*(speed/abs(speed)));
+		int newSpeed = 100*(speed/abs(speed));
+		SetMotorSpeed(&leftMotorController, newSpeed);
+		SetMotorSpeed(&rightMotorController, newSpeed);
 		return 1; //trying to set speed higher than allowed.
 	}
 	SetMotorSpeed(&leftMotorController, speed);
@@ -47,10 +55,17 @@ int DriveForward(int speed) {
 
 // Adjusts motor speed by adding Adjust(left/right) to motors current speed.
 int AdjustSpeed(int leftAdjust, int rightAdjust) {
-	int leftSpeed = GetMotorSpeed(&leftMotorController);
-	int rightSpeed = GetMotorSpeed(&rightMotorController);
+//	int leftSpeed = GetMotorSpeed(&leftMotorController);
+//	int rightSpeed = GetMotorSpeed(&rightMotorController);
+	int leftSpeed = leftMotorController.currentSpeed;
+	int rightSpeed = rightMotorController.currentSpeed;
 	int newLeftSpeed = leftSpeed+leftAdjust;
 	int newRightSpeed = rightSpeed+rightAdjust;
+
+	leftSpeedGlobal = leftSpeed;
+	rightSpeedGlobal = rightSpeed;
+	leftPwGlobal = TIM2->CCR1;
+	rightPwGlobal = TIM2->CCR3;
 
 	if(abs(newLeftSpeed) > 100 && abs(newRightSpeed) > 100) {
 		SetMotorSpeed(&leftMotorController, 100*(newLeftSpeed/abs(newLeftSpeed)));
@@ -68,6 +83,9 @@ int AdjustSpeed(int leftAdjust, int rightAdjust) {
 
 	SetMotorSpeed(&leftMotorController, newLeftSpeed);
 	SetMotorSpeed(&rightMotorController, newRightSpeed);
+
+
+
 	return 0; //all fine
 }
 

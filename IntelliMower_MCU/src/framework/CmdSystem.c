@@ -48,8 +48,8 @@ uint8_t RunCommand( uint8_t *rpiCmds ) {
 
 	switch ( newCMD ) {
 		case MCU_STOP :
-			DriveForward(0);
 			StopController();
+			DriveForward(0);
 			inControlLoop = 0;
 			break;
 		case MCU_FORWARD :
@@ -75,7 +75,8 @@ uint8_t RunCommand( uint8_t *rpiCmds ) {
 			// FIXME! feed mCoords to control loop make an fifo in there
 			Point currentPos = { .x = coordinates[0], .y = coordinates[1]};
 			Point target = { .x = coordinates[2], .y = coordinates[3]};
-			InitControlLoop(&currentPos, &target);
+			DriveForward(setMotor.speed);
+			InitControlLoop(&currentPos, &target, setMotor.speed);
 			break;
 		case MCU_FEED :
 			ByteArrToInt32(&rpiCmds[1], 8, coordinates);
@@ -87,7 +88,6 @@ uint8_t RunCommand( uint8_t *rpiCmds ) {
 		case MCU_NULL :
 			// never gets here
 			break;
-		//TODO: implement POS FEED command to update PID with current POS.
 		default :
 			return 0;
 			break;

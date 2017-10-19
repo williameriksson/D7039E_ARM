@@ -13,6 +13,6 @@ int main( void ) {
 	// Place hardware or system inits
 	// here that are not initialized in common init
 
-	CommonInit();	// master init
-	CommonFrame();	// busy wait while loop
+	CommonInit();  // master init
+	CommonFrame(); // busy wait while loop
 }
