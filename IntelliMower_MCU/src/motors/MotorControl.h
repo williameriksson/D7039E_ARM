@@ -17,6 +17,7 @@ typedef struct {
 	const int pwmMax; //maximum PWM width in micro sec
 	int frequency; //in Hz
 	int pulseWidth; //in millisec
+	int currentSpeed; //in percentage
 }MotorController;
 
 void InitMotorControl();

@@ -14,6 +14,7 @@ void InitMotorControl(MotorController *motorController) {
 }
 
 void SetMotorSpeed(MotorController *motorController, int percentage) {
+	motorController->currentSpeed = percentage;
 	int neutralPWM = (motorController->pwmMax + motorController->pwmMin) / 2; //"neutral" PWM
 	int varianceSpan =  neutralPWM - motorController->pwmMin; //max variance of PWM from "neutral"
 	int newPWM = neutralPWM + ((varianceSpan * percentage)/100);

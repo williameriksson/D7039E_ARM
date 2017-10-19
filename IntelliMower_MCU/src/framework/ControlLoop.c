@@ -16,11 +16,17 @@ Point currentPos;
 Line line;
 
 double distFromLineTEST;
+double outputPID;
+
+int minAdjust;
+int maxAdjust;
 
 /*
  * Initializes the PID controller and sets the target coordinate.
  */
-void InitControlLoop(Point *startPoint, Point *targetPoint) {
+void InitControlLoop(Point *startPoint, Point *targetPoint, int speed) {
+	minAdjust = speed - 20;
+	minAdjust = speed + 20;
 	startPos.x = startPoint->x;
 	startPos.y = startPoint->y;
 	currentPos.x = startPoint->x;
@@ -34,7 +40,7 @@ void InitControlLoop(Point *startPoint, Point *targetPoint) {
 	int loopTime = 1000;
 //	Init a PID controller with parameters, ref value should
 //	be distance to the line it should hold (typically 0).
-	InitController(&lineFollowController, 0, 1.0f, 0, 0, loopTime);
+	InitController(&lineFollowController, 0, 2.0f, 0, 1.0, loopTime);
 
 //	Set up an interrupt to that runs at x hertz, this is the control loop time.
 	InitTimerInterrupt(TIM9, loopTime);
@@ -49,9 +55,18 @@ void LoopController() {
 	double distanceFromLine = GetDistancePointToLine(&line, &currentPos);
 	distFromLineTEST = distanceFromLine;
 	float output = RunController(&lineFollowController, distanceFromLine, 0);
-
+	output = output/100;
+	outputPID = output;
 	//	Use the return value from the PID to adjust steering accordingly.
-	AdjustSpeed(output, -output);
+	int leftAdjust = (int)output;
+	int rightAdjust = -1*(int)output;
+
+	if(leftAdjust < minAdjust) { leftAdjust = minAdjust; }
+	if(rightAdjust < minAdjust) { rightAdjust = minAdjust; }
+	if(leftAdjust > maxAdjust) { leftAdjust = maxAdjust; }
+	if(rightAdjust > maxAdjust) { rightAdjust = maxAdjust; }
+
+	AdjustSpeed(leftAdjust, rightAdjust);
 }
 
 void UpdatePIDValue(Point *newPos) {
@@ -68,6 +83,6 @@ void StopController() {
 //currently assigned by ControlLoop.c as internal interrupt for PID
 void TIM1_BRK_TIM9_IRQHandler() {
 	LoopController();
-	TIM9->SR &= ~TIM_SR_TIF;
+	TIM9->SR &= ~TIM_SR_UIF;
 }
 

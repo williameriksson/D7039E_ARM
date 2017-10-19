@@ -49,8 +49,8 @@ void StopTimerInterrupt(TIM_TypeDef *timerReg) {
 }
 
 /*
- * Intializes a timer registser (TIM 1-5 / 9-11 for PWM generation)
- * CAUTION: can run 4 / 2 different pulse widths per timer but only 1 frequency due to shared ARR regs.
+ * Intializes a timer registser (TIM 1-5 / 9 / 10-11 for PWM generation)
+ * CAUTION: can run 4 / 2 / 1 different pulse widths per timer but only 1 frequency due to shared ARR regs.
  */
 void InitTimerPWM(TIM_TypeDef *timerReg, uint8_t channel, GPIO_TypeDef *gpio, uint8_t pin, int pulseWidthMicroSec, int frequency) {
 
