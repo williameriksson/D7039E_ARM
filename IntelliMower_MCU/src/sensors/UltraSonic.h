@@ -4,4 +4,10 @@
 #include "utils/Timer.h"
 #include "stm32f4xx_nucleo.h"
 
+typedef struct {
+
+}UltrasonicSensors ;
+
+void InitUltrasonic(void);
+
 #endif /* SENSORS_ULTRASONIC_H_ */

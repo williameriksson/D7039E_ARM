@@ -19,9 +19,9 @@ volatile int quitProgram   = 0;
  */
 void CommonInit() {
 	// place all inits here
-	InitSPI();
-	InitSteering();
-//	InitUltrasonic();
+//	InitSPI();
+//	InitSteering();
+	InitUltrasonic();
 	isInitialized = 1;
 }
 
@@ -43,22 +43,13 @@ void CommonQuit() {
 /*
  * "main"
  */
-//static int kek;
 
 void CommonFrame() {
 
 	while( !quitProgram ) {
 		// busy wait, let interrupt handlers take over
-//		kek = TIM3->CCR1;
 	}
 }
 
-void TIM2_IRQHandler() {
-//	LoopController();
-	TIM2->SR &= ~TIM_SR_UIF;
-	TIM2->SR &= ~TIM_SR_CC1IF;
-//	GPIOA->ODR ^= 0x32;
-	GpioSetPinToggle(GPIOA, 5);
-}
 
 

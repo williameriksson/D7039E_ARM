@@ -37,10 +37,10 @@ void InitControlLoop(Point *startPoint, Point *targetPoint, int speed) {
 	InitLineTwoPoints(&line, &startPos, &targetPos);
 	distFromLineTEST = GetDistancePointToLine(&line, &currentPos);
 
-	int loopTime = 1000;
+	int loopTime = 100;
 //	Init a PID controller with parameters, ref value should
 //	be distance to the line it should hold (typically 0).
-	InitController(&lineFollowController, 0, 2.0f, 0, 1.0, loopTime);
+	InitController(&lineFollowController, 0, 1.0f, 0, 0.0, loopTime);
 
 //	Set up an interrupt to that runs at x hertz, this is the control loop time.
 	InitTimerInterrupt(TIM9, loopTime);
