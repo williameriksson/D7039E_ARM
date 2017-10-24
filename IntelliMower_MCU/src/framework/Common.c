@@ -9,6 +9,8 @@
 #include "utils/containers/CircularBuffer.h"
 #include "utils/containers/Queue.h"
 #include "utils/containers/Stack.h"
+#include "com/I2C.h"
+#include "sensors/Accelerometer.h"
 
 // private variables
 volatile int isInitialized = 0;
