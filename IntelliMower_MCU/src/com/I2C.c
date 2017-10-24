@@ -1,10 +1,6 @@
 #include "I2C.h"
-#include <math.h>
-uint8_t testDataLOW;
-uint8_t testDataHIGH;
-int16_t testData;
+#include "sensors/Accelerometer.h" // For the dataReady reset, might want to change this later
 
-uint8_t dataReady = 0;
 void InitI2C() {
 
 	__disable_irq();
@@ -57,127 +53,10 @@ void InitI2C() {
 	I2C1->CR1 |= I2C_CR1_PE;    // Enable I2C1;
 	I2C1->CR1 |= I2C_CR1_ACK;	// Acknowledge enable, accelerometer/gyro requires ACK mode
 
-
-
 	__enable_irq();
 
-	initAccMag();
-	magCalibration();
-	testI2C();
-
 }
 
-void initAccMag() {
-
-	GpioEnable(GPIOA);
-	SYSCFG->EXTICR[0] |= SYSCFG_EXTICR1_EXTI0_PA;
-	EXTI->FTSR |= EXTI_FTSR_TR0;
-	EXTI->IMR |= EXTI_IMR_MR0;
-
-	NVIC_SetPriority(EXTI0_IRQn, 15);
-	NVIC_EnableIRQ(EXTI0_IRQn);
-
-	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG2, 0x40); // Reset all registers to POR values
-	for(int i = 0; i < 100000; i++);
-	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_XYZ_DATA_CFG, 0x00); // +/-2g, 0.244mg/LSB
-	for(int i = 0; i < 1000; i++);
-	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_CTRL_REG1, 0x1F); // Hybrid mode (accelerometer + magnetometer), max OSR
-	for(int i = 0; i < 1000; i++);
-	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_CTRL_REG2, 0x20); // M_OUT_X_MSB register 0x33 follows the OUT_Z_LSB register 0x06
-	for(int i = 0; i < 1000; i++);
-	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG2, 0x02); // High resolution mode
-	for(int i = 0; i < 1000; i++);
-
-	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG4, 0x01); // Enable DRDY interrupt
-	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG5, 0x01); // DRDY interrupt on INT1
-	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG1, 0b00110101); // ODR = 3.125Hz, Reduced noise, Active mode
-}
-
-
-void EXTI0_IRQHandler (void) {
-	if (EXTI->PR & EXTI_PR_PR0) {	// Check interrupt flag for PR0
-		dataReady = 1;
-	}
-
-	EXTI->PR |= EXTI_PR_PR0; 		// clear interrupt flag PR0 by writing 1
-}
-
-#define dataLen 12
-uint8_t ndof_data[dataLen];
-int16_t ndof_x;
-int16_t ndof_y;
-int16_t ndof_z;
-int16_t ndof_m_x;
-int16_t ndof_m_y;
-int16_t ndof_m_z;
-float uTx;
-float uTy;
-float heading;
-
-
-void magCalibration() {
-	short Xout_Mag_16_bit_avg, Yout_Mag_16_bit_avg, Zout_Mag_16_bit_avg;
-	short Xout_Mag_16_bit_max, Yout_Mag_16_bit_max, Zout_Mag_16_bit_max;
-	short Xout_Mag_16_bit_min, Yout_Mag_16_bit_min, Zout_Mag_16_bit_min;
-	short Xout_Mag_16_bit, Yout_Mag_16_bit, Zout_Mag_16_bit;
-
-	for (int i = 0; i < 30; i++) {
-		while(!dataReady);
-		dataReady = 0;
-		I2cReadMultipleBytes(NDOF_ACC_MAG_ADDR, NDOF_M_OUT_X_MSB, 6, ndof_data);
-
-		Xout_Mag_16_bit = (short) (ndof_data[0]<<8 | ndof_data[1]);        // Compute 16-bit X-axis magnetic output value
-		Yout_Mag_16_bit = (short) (ndof_data[2]<<8 | ndof_data[3]);        // Compute 16-bit Y-axis magnetic output value
-		Zout_Mag_16_bit = (short) (ndof_data[4]<<8 | ndof_data[5]);        // Compute 16-bit Z-axis magnetic output value
-
-		if (i == 0) {
-			Xout_Mag_16_bit_max = Xout_Mag_16_bit;
-			Xout_Mag_16_bit_min = Xout_Mag_16_bit;
-
-			Yout_Mag_16_bit_max = Yout_Mag_16_bit;
-			Yout_Mag_16_bit_min = Yout_Mag_16_bit;
-
-			Zout_Mag_16_bit_max = Zout_Mag_16_bit;
-			Zout_Mag_16_bit_min = Zout_Mag_16_bit;
-		}
-
-		// Check to see if current sample is the maximum or minimum X-axis value
-		if (Xout_Mag_16_bit > Xout_Mag_16_bit_max)    {Xout_Mag_16_bit_max = Xout_Mag_16_bit;}
-		if (Xout_Mag_16_bit < Xout_Mag_16_bit_min)    {Xout_Mag_16_bit_min = Xout_Mag_16_bit;}
-
-		// Check to see if current sample is the maximum or minimum Y-axis value
-		if (Yout_Mag_16_bit > Yout_Mag_16_bit_max)    {Yout_Mag_16_bit_max = Yout_Mag_16_bit;}
-		if (Yout_Mag_16_bit < Yout_Mag_16_bit_min)    {Yout_Mag_16_bit_min = Yout_Mag_16_bit;}
-
-		// Check to see if current sample is the maximum or minimum Z-axis value
-		if (Zout_Mag_16_bit > Zout_Mag_16_bit_max)    {Zout_Mag_16_bit_max = Zout_Mag_16_bit;}
-		if (Zout_Mag_16_bit < Zout_Mag_16_bit_min)    {Zout_Mag_16_bit_min = Zout_Mag_16_bit;}
-
-//		for(int j=0; j < 500000; j++);
-	}
-
-	Xout_Mag_16_bit_avg = (Xout_Mag_16_bit_max + Xout_Mag_16_bit_min) / 2;            // X-axis hard-iron offset
-	Yout_Mag_16_bit_avg = (Yout_Mag_16_bit_max + Yout_Mag_16_bit_min) / 2;            // Y-axis hard-iron offset
-	Zout_Mag_16_bit_avg = (Zout_Mag_16_bit_max + Zout_Mag_16_bit_min) / 2;            // Z-axis hard-iron offset
-
-
-	// Left-shift by one as magnetometer offset registers are 15-bit only, left justified
-	Xout_Mag_16_bit_avg <<= 1;
-	Yout_Mag_16_bit_avg <<= 1;
-	Zout_Mag_16_bit_avg <<= 1;
-
-	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG1, 0x00);          // Standby mode to allow writing to the offset registers
-
-	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_X_LSB, (char) (Xout_Mag_16_bit_avg & 0xFF));
-	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_X_MSB, (char) ((Xout_Mag_16_bit_avg >> 8) & 0xFF));
-	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_Y_LSB, (char) (Yout_Mag_16_bit_avg & 0xFF));
-	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_Y_MSB, (char) ((Yout_Mag_16_bit_avg >> 8) & 0xFF));
-	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_Z_LSB, (char) (Zout_Mag_16_bit_avg & 0xFF));
-	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_Z_MSB, (char) ((Zout_Mag_16_bit_avg >> 8) & 0xFF));
-
-	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG1, 0b00110101);          // Active mode again
-
-}
 
 uint8_t hasTimedOut(uint32_t startTime, uint32_t timeOut) {
 	if (((TIM5->CNT) - startTime) > timeOut) {
@@ -192,27 +71,7 @@ void I2CBusReset() {
 	I2C1->CR1 &= ~I2C_CR1_PE;
 	for(int i = 0; i < 5000; i++);
 	I2C1->CR1 |= I2C_CR1_PE;
-	dataReady = 1;
-}
-
-
-void testI2C() {
-	while (1) {
-		while(!dataReady);
-		dataReady = 0;
-		I2cReadMultipleBytes(NDOF_ACC_MAG_ADDR, NDOF_OUT_X_MSB, dataLen, ndof_data);
-		ndof_x = ((short) (ndof_data[0]<<8 | ndof_data[1])) >> 2;
-		ndof_y = ((short) (ndof_data[2]<<8 | ndof_data[3])) >> 2;
-		ndof_z = ((short) (ndof_data[4]<<8 | ndof_data[5])) >> 2;
-		ndof_m_x = (short) (ndof_data[6]<<8 | ndof_data[7]);
-		ndof_m_y = (short) (ndof_data[8]<<8 | ndof_data[9]);
-		ndof_m_z = (short) (ndof_data[10]<<8 | ndof_data[11]);
-
-		uTx = (float) (ndof_m_x) / SENSITIVITY_MAG;
-		uTy = (float) (ndof_m_y) / SENSITIVITY_MAG;
-		heading = 180 + atan2(uTy, uTx) * 180 / 3.141592;
-
-	}
+	accDataReady = 1;
 }
 
 

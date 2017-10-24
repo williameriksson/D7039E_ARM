@@ -8,6 +8,8 @@
 #include "utils/containers/CircularBuffer.h"
 #include "utils/containers/Queue.h"
 #include "utils/containers/Stack.h"
+#include "com/I2C.h"
+#include "sensors/Accelerometer.h"
 
 // private variables
 volatile int isInitialized = 0;
@@ -18,9 +20,11 @@ volatile int quitProgram   = 0;
  */
 void CommonInit() {
 	// place all inits here
-	InitSPI1();
+//	InitSPI1();
 	//InitSteering();
-	//InitI2C();
+	InitI2C();
+	InitAccMag();
+	MagCalibration();
 	isInitialized = 1;
 }
 
@@ -46,6 +50,7 @@ void CommonFrame() {
 
 	while( !quitProgram ) {
 		// busy wait, let interrupt handlers take over
+		ReadAccMagData();
 
 	}
 }
