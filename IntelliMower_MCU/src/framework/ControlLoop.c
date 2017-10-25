@@ -43,7 +43,7 @@ void InitControlLoop(Point *startPoint, Point *targetPoint, int speed) {
 	InitController(&lineFollowController, 0, 1.0f, 0, 0.0, loopTime);
 
 //	Set up an interrupt to that runs at x hertz, this is the control loop time.
-	InitTimerInterrupt(TIM9, loopTime);
+	InitTimerInterrupt(TIM9, loopTime, 20);
 
 }
 
@@ -73,7 +73,6 @@ void UpdatePIDValue(Point *newPos) {
 	currentPos.x = newPos->x;
 	currentPos.y = newPos->y;
 	distFromLineTEST = GetDistancePointToLine(&line, &currentPos);
-
 }
 
 void StopController() {

@@ -1,11 +1,13 @@
 #include "UltraSonic.h"
 
-
 void InitUltrasonic() {
 //	__disable_irq();
 //	__enable_irq();
-
-	InitTimerPWM(TIM2, 1, GPIOA, 5, 40000, 2); //Should be changed for TIM9 ch 1 (PA2) (is tim2 due to lack of support from nucleo)
+	distanceSensors.distances[0] = 0;
+	distanceSensors.distances[1] = 0;
+	distanceSensors.distances[2] = 0;
+	distanceSensors.distances[3] = 0;
+ 	InitTimerPWM(TIM2, 1, GPIOA, 5, 40000, 2); //Should be changed for TIM9 ch 1 (PA2) (is tim2 due to lack of support from nucleo)
 
 	/*
 	 * sets up a timer for capturing input from ultrasonic sensors.
@@ -54,35 +56,7 @@ void InitUltrasonic() {
 	GpioSetOutput(GPIOB, 6);
 }
 
-
-
-//void EXTI4_IRQHandler (void) {
-//	static int startTime = 0;
-//
-//	if (EXTI->PR & EXTI_PR_PR4) {	// Check interrupt flag for PR4
-//		if (GPIOC->IDR & 16) {		// Check if rising edge
-//			startTime = TIM10->CNT;
-//		} else {
-//			int endTime = TIM10->CNT;
-//			int duration = endTime - startTime;
-//			if (duration < 0) {
-//				duration = (0xFFFF - startTime) + endTime;
-//			}
-//			pushBuffer(&obstacleBuffer, duration);
-//			int averageDuration = getBufferAverage(&obstacleBuffer);
-//			obstacleDistance = ((float)averageDuration / 1.47f) * 2.54f; // 147 uS per cm
-//			if (obstacleDistance <= obstacleThreshold) {
-//				GPIOA->ODR |= (1 << 8);
-//			} else {
-//				GPIOA->ODR &= ~(1 << 8);
-//			}
-//		}
-//	}
-//	EXTI->PR |= EXTI_PR_PR4; // clear interrupt flag PR4 by writing 1
-//}
-
-
-int ccrOne;
+int ccrOne; //for testing in STM viewier.
 int ccrTwo;
 
 
@@ -93,17 +67,19 @@ void TIM3_IRQHandler() {
 //	int fallingEdge = 0;
 	if(TIM3->SR & TIM_SR_CC1IF) {
 		ccr = TIM3->CCR1;
-		write = &ccrOne;
+		write = &distanceSensors.distances[0];
 	}
 	else if(TIM3->SR & TIM_SR_CC2IF) {
 		ccr = TIM3->CCR2;
-		write = &ccrTwo;
+		write = &distanceSensors.distances[1];
 	}
 	else if(TIM3->SR & TIM_SR_CC3IF) {
 		ccr = TIM3->CCR3;
+		write = &distanceSensors.distances[2];
 	}
 	else if(TIM3->SR & TIM_SR_CC4IF) {
 		ccr = TIM3->CCR4;
+		write = &distanceSensors.distances[3];
 	}
 	if(ccr <= 250) { //TODO: do this in a better way preferably.
 		*write = ccr;

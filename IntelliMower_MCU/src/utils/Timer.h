@@ -14,7 +14,7 @@ typedef struct {
 	TIM_TypeDef *timerReg;
 }Timer;
 
-void InitTimerInterrupt(TIM_TypeDef *timerReg, int timeDelay);
+void InitTimerInterrupt(TIM_TypeDef *timerReg, int timeDelay, int priority);
 void InitTimerPWM(TIM_TypeDef *timerReg, uint8_t channel, GPIO_TypeDef *gpio, uint8_t pin, int pulseWidth, int frequecy);
 void TimerSetPWM(TIM_TypeDef *timerReg, uint8_t channel, int pulseWidthMicroSec, int frequency);
 void TimerRegEnable(TIM_TypeDef *timerReg);

@@ -4,7 +4,7 @@
  * timeDelay is in milli seconds.
  * CAUTION: using delays longer than 2^16 ms requires a 32bit timer (TIM2 or TIM5)
  */
-void InitTimerInterrupt(TIM_TypeDef *timerReg, int timeDelay) {
+void InitTimerInterrupt(TIM_TypeDef *timerReg, int timeDelay, int priority) {
 	TimerRegEnable(timerReg);
 	timerReg->DIER |= TIM_DIER_UIE; //enables update interrupts
 	timerReg->PSC = 10000-1; //sets prescaler -> clock freq 10 kHz
@@ -41,7 +41,7 @@ void InitTimerInterrupt(TIM_TypeDef *timerReg, int timeDelay) {
 		}
 
 	NVIC_EnableIRQ(irqType);
-	NVIC_SetPriority(irqType, 20);
+	NVIC_SetPriority(irqType, priority);
 }
 
 void StopTimerInterrupt(TIM_TypeDef *timerReg) {
@@ -167,6 +167,38 @@ void TimerRegEnable(TIM_TypeDef *timerReg) {
 			break;
 		case (int)TIM11:
 			RCC->APB2ENR |= RCC_APB2ENR_TIM11EN;
+			break;
+		}
+}
+
+void TimerRegDisable(TIM_TypeDef *timerReg) {
+	switch((int)timerReg) {
+		//TIM 1/2 is enabled in APB2ENR / APB1ENR reg
+		case (int)TIM1:
+			RCC->APB2ENR &= ~RCC_APB2ENR_TIM1EN;
+			break;
+		case (int)TIM2:
+			RCC->APB1ENR &= ~RCC_APB1ENR_TIM2EN;
+			break;
+		//TIM 3/4/5 is enabled in APB1ENR reg
+		case (int)TIM3:
+			RCC->APB1ENR &= ~RCC_APB1ENR_TIM3EN;
+			break;
+		case (int)TIM4:
+			RCC->APB1ENR &= ~RCC_APB1ENR_TIM4EN;
+			break;
+		case (int)TIM5:
+			RCC->APB1ENR &= ~RCC_APB1ENR_TIM5EN;
+			break;
+		//TIM 9/10/11 is enabled in APB2ENR reg
+		case (int)TIM9:
+			RCC->APB2ENR &= ~RCC_APB2ENR_TIM9EN;
+			break;
+		case (int)TIM10:
+			RCC->APB2ENR &= ~RCC_APB2ENR_TIM10EN;
+			break;
+		case (int)TIM11:
+			RCC->APB2ENR &= ~RCC_APB2ENR_TIM11EN;
 			break;
 		}
 }

@@ -5,8 +5,10 @@
 #include "stm32f4xx_nucleo.h"
 
 typedef struct {
+	int distances[4];
+}DistanceSensors;
 
-}UltrasonicSensors ;
+DistanceSensors distanceSensors;
 
 void InitUltrasonic(void);
 
