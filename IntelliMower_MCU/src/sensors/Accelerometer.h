@@ -16,6 +16,9 @@
 #define NDOF_CTRL_REG5 0x2E
 #define NDOF_XYZ_DATA_CFG 0x0E
 #define NDOF_OUT_X_MSB 0x01
+#define NDOF_OFF_X 0x2F
+#define NDOF_OFF_Y 0x30
+#define NDOF_OFF_Z 0x31
 
 #define NDOF_M_OUT_X_MSB 0x33
 #define NDOF_M_CTRL_REG1 0x5B
@@ -27,6 +30,8 @@
 #define NDOF_M_OFF_Z_MSB 0x43
 #define NDOF_M_OFF_Z_LSB 0x44
 
+#define NDOF_ACTIVE_VAL 0b00001101
+
 #define SENSITIVITY_2G 4096
 #define SENSITIVITY_4G 2048
 #define SENSITIVITY_8G 1024
@@ -35,6 +40,7 @@
 #define NDOF_DATA_LEN 12
 
 void ReadAccMagData();
+void AccCalibration();
 void MagCalibration();
 void InitAccMag();
 
