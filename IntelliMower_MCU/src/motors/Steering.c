@@ -38,6 +38,8 @@ int rightPwGlobal;
 void InitSteering() {
 	InitMotorControl(&leftMotorController);
 	InitMotorControl(&rightMotorController);
+	SetMotorSpeed(&leftMotorController, 50);
+	SetMotorSpeed(&rightMotorController, 50);
 }
 
 //Set motors to equal speed to drive straight forward.
@@ -74,19 +76,26 @@ int AdjustSpeed(int leftAdjust, int rightAdjust) {
 	}
 	if(abs(newLeftSpeed) > 100) {
 		SetMotorSpeed(&leftMotorController, 100*(newLeftSpeed/abs(newLeftSpeed)));
+		SetMotorSpeed(&rightMotorController, newRightSpeed);
 		return 1; //the left speed is already maxed
 	}
 	if(abs(newRightSpeed) > 100) {
 		SetMotorSpeed(&rightMotorController, 100*(newRightSpeed/abs(newRightSpeed)));
+		SetMotorSpeed(&leftMotorController, newLeftSpeed);
 		return 1; //the right speed is already maxed
 	}
 
 	SetMotorSpeed(&leftMotorController, newLeftSpeed);
 	SetMotorSpeed(&rightMotorController, newRightSpeed);
-
-
-
 	return 0; //all fine
+}
+
+int GetLeftSpeed() {
+	return leftMotorController.currentSpeed;
+}
+
+int GetRightSpeed() {
+	return rightMotorController.currentSpeed;
 }
 
 // Rotates left around it's own axis at speed (percentage)

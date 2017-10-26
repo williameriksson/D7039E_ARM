@@ -25,9 +25,10 @@ void SetMotorSpeed(MotorController *motorController, int percentage) {
 	else if(newPWM > motorController->pwmMax) { TimerSetPWM(motorController->timer, motorController->channel, motorController->pwmMax, motorController->frequency); }
 
 	else TimerSetPWM(motorController->timer, motorController->channel, newPWM, motorController->frequency); //sets the new PWM
-}
+	}
 
 //returns what speed the motors are supposed to be running at(based on PWM)
+//DONT USE THIS FUNCTION!
 int GetMotorSpeed(MotorController *motorController) {
 	int pulsewidth = motorController->pulseWidth;
 	int neutralPWM = (motorController->pwmMax + motorController->pwmMin) / 2; //"neutral" PWM

@@ -18,15 +18,19 @@ Line line;
 double distFromLineTEST;
 double outputPID;
 
+int allowedRange;
 int minAdjust;
 int maxAdjust;
+int disSpeed;
 
 /*
  * Initializes the PID controller and sets the target coordinate.
  */
 void InitControlLoop(Point *startPoint, Point *targetPoint, int speed) {
-	minAdjust = speed - 20;
-	minAdjust = speed + 20;
+	disSpeed = -15;
+	allowedRange = 5;
+	minAdjust = disSpeed - allowedRange;
+	maxAdjust = disSpeed + allowedRange;
 	startPos.x = startPoint->x;
 	startPos.y = startPoint->y;
 	currentPos.x = startPoint->x;
@@ -40,7 +44,7 @@ void InitControlLoop(Point *startPoint, Point *targetPoint, int speed) {
 	int loopTime = 100;
 //	Init a PID controller with parameters, ref value should
 //	be distance to the line it should hold (typically 0).
-	InitController(&lineFollowController, 0, 1.0f, 0, 0.0, loopTime);
+	InitController(&lineFollowController, 0, 0.01f, 0, 0.01, loopTime);
 
 //	Set up an interrupt to that runs at x hertz, this is the control loop time.
 	InitTimerInterrupt(TIM9, loopTime, 20);
@@ -55,18 +59,19 @@ void LoopController() {
 	double distanceFromLine = GetDistancePointToLine(&line, &currentPos);
 	distFromLineTEST = distanceFromLine;
 	float output = RunController(&lineFollowController, distanceFromLine, 0);
-	output = output/100;
+	output = output;
 	outputPID = output;
 	//	Use the return value from the PID to adjust steering accordingly.
 	int leftAdjust = (int)output;
 	int rightAdjust = -1*(int)output;
 
-	if(leftAdjust < minAdjust) { leftAdjust = minAdjust; }
-	if(rightAdjust < minAdjust) { rightAdjust = minAdjust; }
-	if(leftAdjust > maxAdjust) { leftAdjust = maxAdjust; }
-	if(rightAdjust > maxAdjust) { rightAdjust = maxAdjust; }
-
-	AdjustSpeed(leftAdjust, rightAdjust);
+	if((leftAdjust + GetLeftSpeed() < minAdjust) || (leftAdjust + GetLeftSpeed() > maxAdjust)) {
+		AdjustSpeed(disSpeed + ((abs(leftAdjust)/leftAdjust) * allowedRange) - GetLeftSpeed(), 0);
+		AdjustSpeed(0, disSpeed + ((abs(rightAdjust)/rightAdjust) * allowedRange) - GetRightSpeed());
+	}
+	else {
+		AdjustSpeed(leftAdjust, rightAdjust);
+	}
 }
 
 void UpdatePIDValue(Point *newPos) {

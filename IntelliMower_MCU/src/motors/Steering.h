@@ -15,5 +15,7 @@ int RotateLeft(int speed);
 int RotateRight(int speed);
 int DriveForward(int speed);
 int AdjustSpeed(int leftAdjust, int rightAdjust);
+int GetLeftSpeed();
+int GetRightSpeed();
 
 #endif /* MOTORS_STEERING_H_ */

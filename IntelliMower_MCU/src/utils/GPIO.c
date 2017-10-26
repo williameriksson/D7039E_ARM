@@ -63,5 +63,5 @@ void GpioSetOtyper(GPIO_TypeDef *gpio, int pin) {
 
 int GpioReadInputPin(GPIO_TypeDef *gpio, int pin) {
 	int temp = gpio->IDR;
-	return temp >> pin;
+	return (temp >> pin) & 0x1;
 }
