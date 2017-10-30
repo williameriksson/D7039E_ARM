@@ -1,6 +1,7 @@
 #include "Accelerometer.h"
 #include <math.h>
 
+uint32_t nextAccRead = accReadInterval;
 
 void EXTI0_IRQHandler (void) {
 	if (EXTI->PR & EXTI_PR_PR0) {	// Check interrupt flag for PR0
@@ -12,13 +13,13 @@ void EXTI0_IRQHandler (void) {
 
 void InitAccMag() {
 
-	GpioEnable(GPIOA);
-	SYSCFG->EXTICR[0] |= SYSCFG_EXTICR1_EXTI0_PA;
-	EXTI->FTSR |= EXTI_FTSR_TR0;
-	EXTI->IMR |= EXTI_IMR_MR0;
-
-	NVIC_SetPriority(EXTI0_IRQn, 15);
-	NVIC_EnableIRQ(EXTI0_IRQn);
+//	GpioEnable(GPIOA);
+//	SYSCFG->EXTICR[0] |= SYSCFG_EXTICR1_EXTI0_PA;
+//	EXTI->FTSR |= EXTI_FTSR_TR0;
+//	EXTI->IMR |= EXTI_IMR_MR0;
+//
+//	NVIC_SetPriority(EXTI0_IRQn, 15);
+//	NVIC_EnableIRQ(EXTI0_IRQn);
 
 	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG2, 0x40); // Reset all registers to POR values
 	for(int i = 0; i < 100000; i++);
@@ -30,9 +31,9 @@ void InitAccMag() {
 	for(int i = 0; i < 1000; i++);
 	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG2, 0x02); // High resolution mode
 	for(int i = 0; i < 1000; i++);
-
-	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG4, 0x01); // Enable DRDY interrupt
-	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG5, 0x01); // DRDY interrupt on INT1
+//
+//	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG4, 0x01); // Enable DRDY interrupt
+//	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG5, 0x01); // DRDY interrupt on INT1
 	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG1, NDOF_ACTIVE_VAL); // ODR = 3.125Hz, Reduced noise, Active mode
 }
 
@@ -62,21 +63,9 @@ void AccCalibration() {
 	zOutAccel14Bit = tmpZOutAccel;
 
 
-
-
-//	xAccelOffset = -14; 						// Compute X-axis offset correction value
-//	yAccelOffset = 16; 						// Compute X-axis offset correction value
-//	zAccelOffset = -14;	// Compute X-axis offset correction value
-
-//	xAccelOffset = (xOutAccel14Bit & 0x00FF) * (-1); 						// Compute X-axis offset correction value
-//	yAccelOffset = (yOutAccel14Bit & 0x00FF) * (-1); 						// Compute X-axis offset correction value
-//	zAccelOffset = ((zOutAccel14Bit - SENSITIVITY_2G) & 0x00FF) * (-1);	// Compute X-axis offset correction value
-
 	xAccelOffset = xOutAccel14Bit / 8 * (-1); 						// Compute X-axis offset correction value
 	yAccelOffset = yOutAccel14Bit / 8 * (-1); 						// Compute X-axis offset correction value
 	zAccelOffset = (zOutAccel14Bit - SENSITIVITY_2G) / 8 * (-1);	// Compute X-axis offset correction value
-
-
 
 
 	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_OFF_X, xAccelOffset);
@@ -84,6 +73,7 @@ void AccCalibration() {
 	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_OFF_Z, zAccelOffset);
 
 	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG1, NDOF_ACTIVE_VAL); // Active mode again
+	accCalibrated = 1;
 
 }
 
@@ -147,13 +137,20 @@ void MagCalibration() {
 	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_Z_MSB, (char) ((zOutMag16BitAvg >> 8) & 0xFF));
 
 	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG1, NDOF_ACTIVE_VAL);          // Active mode again
+	magCalibrated = 1;
 
 }
 
+double xPos, yPos, zPos;
+double xVel, yVel, zVel;
+double dt = 0;
+
 void ReadAccMagData() {
 
-	while(!accDataReady);
-	accDataReady = 0;
+//	if(!accDataReady) {return;}
+//	accDataReady = 0;
+	if (!(TIM5->CNT > nextAccRead)) {return;}
+	nextAccRead = TIM5->CNT + accReadInterval;
 	I2cReadMultipleBytes(NDOF_ACC_MAG_ADDR, NDOF_OUT_X_MSB, NDOF_DATA_LEN, ndofDataBuffer);
 	ndof.accX = (float) ( (int16_t) ((ndofDataBuffer[0]<<8 | ndofDataBuffer[1])) >> 2) / SENSITIVITY_2G;
 	ndof.accY = (float) ( (int16_t) ((ndofDataBuffer[2]<<8 | ndofDataBuffer[3])) >> 2) / SENSITIVITY_2G;
@@ -163,5 +160,17 @@ void ReadAccMagData() {
 	ndof.magZ = (float) ( (int16_t) (ndofDataBuffer[10]<<8 | ndofDataBuffer[11])) / SENSITIVITY_MAG;
 
 	ndof.heading = 180 + atan2(ndof.magY, ndof.magX) * 180 / 3.141592;
+
+//	if (accCalibrated) {
+//		endTime = TIM5->CNT;
+//		dt = ((endTime - startTime) / 10000.0);
+//		startTime = endTime;
+//		xVel = xVel + ndof.accX * dt;
+//		xPos = xPos + xVel * dt;
+//		yVel = yVel + ndof.accY * dt;
+//		yPos = yPos + yVel * dt;
+//	}
+
+
 
 }

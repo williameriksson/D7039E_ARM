@@ -8,7 +8,6 @@
 #include "utils/GPIO.h"
 
 #define NDOF_ACC_MAG_ADDR 0x1F
-#define NDOF_GYRO_ADDR 0x21
 #define NDOF_CTRL_REG1 0x2A
 #define NDOF_CTRL_REG2 0x2B
 #define NDOF_CTRL_REG3 0x2C
@@ -30,12 +29,15 @@
 #define NDOF_M_OFF_Z_MSB 0x43
 #define NDOF_M_OFF_Z_LSB 0x44
 
-#define NDOF_ACTIVE_VAL 0b00001101
+#define NDOF_ACTIVE_VAL 0b00000101
 
 #define SENSITIVITY_2G 4096
 #define SENSITIVITY_4G 2048
 #define SENSITIVITY_8G 1024
 #define SENSITIVITY_MAG 10
+
+#define accReadInterval 25 //400 Hz @ 10kHz timer
+
 
 #define NDOF_DATA_LEN 12
 
@@ -45,7 +47,10 @@ void MagCalibration();
 void InitAccMag();
 
 uint8_t accDataReady;
+uint8_t accCalibrated;
+uint8_t magCalibrated;
 uint8_t ndofDataBuffer[NDOF_DATA_LEN];
+
 
 typedef struct {
 	float accX;
