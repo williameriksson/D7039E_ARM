@@ -1,5 +1,6 @@
 #include "I2C.h"
 #include "sensors/Accelerometer.h" // For the dataReady reset, might want to change this later
+#include "sensors/Gyroscope.h"
 
 void InitI2C() {
 
@@ -11,7 +12,7 @@ void InitI2C() {
 
 
 	RCC->APB1ENR |= RCC_APB1ENR_TIM5EN; // enable timer 5 for timeouts
-	TIM5->PSC = 0x10000 - 1;
+	TIM5->PSC = 10000 - 1;
 	TIM5->ARR = 0xFFFFFFFF;
 	TIM5->CR1 |= TIM_CR1_CEN;
 	TIM5->EGR |= TIM_EGR_UG;
@@ -72,6 +73,7 @@ void I2CBusReset() {
 	for(int i = 0; i < 5000; i++);
 	I2C1->CR1 |= I2C_CR1_PE;
 	accDataReady = 1;
+	gyroDataReady = 1;
 }
 
 
