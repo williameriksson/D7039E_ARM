@@ -38,8 +38,8 @@ int rightPwGlobal;
 void InitSteering() {
 	InitMotorControl(&leftMotorController);
 	InitMotorControl(&rightMotorController);
-	SetMotorSpeed(&leftMotorController, 50);
-	SetMotorSpeed(&rightMotorController, 50);
+//	SetMotorSpeed(&leftMotorController, 50);
+//	SetMotorSpeed(&rightMotorController, 50);
 }
 
 //Set motors to equal speed to drive straight forward.

@@ -9,5 +9,7 @@
 
 void InitSafetyControl();
 int IsObjectInFront();
+void HaltOperation();
+void ResumeOperation();
 
 #endif /* FRAMEWORK_SAFETYCONTROL_H_ */

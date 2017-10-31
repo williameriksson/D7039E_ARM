@@ -27,7 +27,7 @@ int disSpeed;
  * Initializes the PID controller and sets the target coordinate.
  */
 void InitControlLoop(Point *startPoint, Point *targetPoint, int speed) {
-	disSpeed = -15;
+	disSpeed = -20;
 	allowedRange = 5;
 	minAdjust = disSpeed - allowedRange;
 	maxAdjust = disSpeed + allowedRange;
@@ -44,7 +44,7 @@ void InitControlLoop(Point *startPoint, Point *targetPoint, int speed) {
 	int loopTime = 100;
 //	Init a PID controller with parameters, ref value should
 //	be distance to the line it should hold (typically 0).
-	InitController(&lineFollowController, 0, 0.01f, 0, 0.01, loopTime);
+	InitController(&lineFollowController, 0, 0.1f, 0, 1.0, loopTime);
 
 //	Set up an interrupt to that runs at x hertz, this is the control loop time.
 	InitTimerInterrupt(TIM9, loopTime, 20);
