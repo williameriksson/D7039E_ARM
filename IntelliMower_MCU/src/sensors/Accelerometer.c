@@ -37,12 +37,11 @@ void InitAccMag() {
 	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG1, NDOF_ACTIVE_VAL); // ODR = 3.125Hz, Reduced noise, Active mode
 }
 
-void AccCalibration() {
+void AccCalibration(int nrOfSamples) {
 	int8_t xAccelOffset, yAccelOffset, zAccelOffset;
 	int16_t xOutAccel14Bit, yOutAccel14Bit, zOutAccel14Bit;
 	int32_t tmpXOutAccel, tmpYOutAccel, tmpZOutAccel;
 
-	int nrOfSamples = 5000;
 	for (int i = 0; i < nrOfSamples; i++) {
 
 		ReadAccMagData();
@@ -77,13 +76,13 @@ void AccCalibration() {
 
 }
 
-void MagCalibration() {
+void MagCalibration(int nrOfSamples) {
 	short xOutMag16BitAvg, yOutMag16BitAvg, zOutMag16BitAvg;
 	short xOutMag16BitMax, yOutMag16BitMax, zOutMag16BitMax;
 	short xOutMag16BitMin, yOutMag16BitMin, zOutMag16BitMin;
 	short xOutMag16Bit, yOutMag16Bit, zOutMag16Bit;
 
-	for (int i = 0; i < 5000; i++) {
+	for (int i = 0; i < nrOfSamples; i++) {
 		while(!accDataReady);
 		accDataReady = 0;
 		I2cReadMultipleBytes(NDOF_ACC_MAG_ADDR, NDOF_M_OUT_X_MSB, 6, ndofDataBuffer);

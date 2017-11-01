@@ -19,16 +19,21 @@
 
 uint8_t gyroDataReady;
 uint8_t gyroDataBuffer[NDOF_GYRO_DATA_LEN];
+uint8_t gyroCalibrated;
 
 
 void InitGyro();
-void ReadGyroData();
+void CalibrateGyro(int);
+int ReadGyroData();
 
 
 typedef struct {
 	float x;
 	float y;
 	float z;
+	float offsetX;
+	float offsetY;
+	float offsetZ;
 } NDOF_GYRO;
 
 NDOF_GYRO gyro;

@@ -42,8 +42,8 @@
 #define NDOF_DATA_LEN 12
 
 void ReadAccMagData();
-void AccCalibration();
-void MagCalibration();
+void AccCalibration(int);
+void MagCalibration(int);
 void InitAccMag();
 
 uint8_t accDataReady;
