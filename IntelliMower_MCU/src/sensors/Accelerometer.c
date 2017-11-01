@@ -82,16 +82,17 @@ void MagCalibration(int nrOfSamples) {
 	short xOutMag16BitMin, yOutMag16BitMin, zOutMag16BitMin;
 	short xOutMag16Bit, yOutMag16Bit, zOutMag16Bit;
 
-	for (int i = 0; i < nrOfSamples; i++) {
-		while(!accDataReady);
-		accDataReady = 0;
-		I2cReadMultipleBytes(NDOF_ACC_MAG_ADDR, NDOF_M_OUT_X_MSB, 6, ndofDataBuffer);
+	int n = 1;
+	while (n <= nrOfSamples) {
 
-		xOutMag16Bit = (int16_t) (ndofDataBuffer[0]<<8 | ndofDataBuffer[1]);   // Compute 16-bit X-axis magnetic output value
-		yOutMag16Bit = (int16_t) (ndofDataBuffer[2]<<8 | ndofDataBuffer[3]);   // Compute 16-bit Y-axis magnetic output value
-		zOutMag16Bit = (int16_t) (ndofDataBuffer[4]<<8 | ndofDataBuffer[5]);   // Compute 16-bit Z-axis magnetic output value
+		int isOldData = ReadAccMagData();
+		if(isOldData) {continue;}
 
-		if (i == 0) {
+		xOutMag16Bit = (int16_t) (ndofDataBuffer[6]<<8 | ndofDataBuffer[7]);   // Compute 16-bit X-axis magnetic output value
+		yOutMag16Bit = (int16_t) (ndofDataBuffer[8]<<8 | ndofDataBuffer[9]);   // Compute 16-bit Y-axis magnetic output value
+		zOutMag16Bit = (int16_t) (ndofDataBuffer[10]<<8 | ndofDataBuffer[11]);   // Compute 16-bit Z-axis magnetic output value
+
+		if (n == 1) {
 			xOutMag16BitMax = xOutMag16Bit;
 			xOutMag16BitMin = xOutMag16Bit;
 
@@ -113,7 +114,7 @@ void MagCalibration(int nrOfSamples) {
 		// Check to see if current sample is the maximum or minimum Z-axis value
 		if (zOutMag16Bit > zOutMag16BitMax)    {zOutMag16BitMax = zOutMag16Bit;}
 		if (zOutMag16Bit < zOutMag16BitMin)    {zOutMag16BitMin = zOutMag16Bit;}
-
+		n++;
 	}
 
 	xOutMag16BitAvg = (xOutMag16BitMax + xOutMag16BitMin) / 2;            // X-axis hard-iron offset
@@ -144,13 +145,14 @@ double xPos, yPos, zPos;
 double xVel, yVel, zVel;
 double dt = 0;
 
-void ReadAccMagData() {
+int ReadAccMagData() {
 
 //	if(!accDataReady) {return;}
 //	accDataReady = 0;
-	if (!(TIM5->CNT > nextAccRead)) {return;}
+	if (!(TIM5->CNT > nextAccRead)) {return 1;}
 	nextAccRead = TIM5->CNT + accReadInterval;
 	I2cReadMultipleBytes(NDOF_ACC_MAG_ADDR, NDOF_OUT_X_MSB, NDOF_DATA_LEN, ndofDataBuffer);
+
 	ndof.accX = (float) ( (int16_t) ((ndofDataBuffer[0]<<8 | ndofDataBuffer[1])) >> 2) / SENSITIVITY_2G;
 	ndof.accY = (float) ( (int16_t) ((ndofDataBuffer[2]<<8 | ndofDataBuffer[3])) >> 2) / SENSITIVITY_2G;
 	ndof.accZ = (float) ( (int16_t) ((ndofDataBuffer[4]<<8 | ndofDataBuffer[5])) >> 2) / SENSITIVITY_2G;
@@ -170,6 +172,6 @@ void ReadAccMagData() {
 //		yPos = yPos + yVel * dt;
 //	}
 
-
+	return 0;
 
 }
