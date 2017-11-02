@@ -31,6 +31,18 @@ void InitAccMag() {
 	for(int i = 0; i < 1000; i++);
 	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG2, 0x02); // High resolution mode
 	for(int i = 0; i < 1000; i++);
+
+
+	short xOutMag16BitAvg = 165;
+	short yOutMag16BitAvg = -502;
+	short zOutMag16BitAvg = 1271;
+
+	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_X_LSB, (char) (xOutMag16BitAvg & 0xFF));
+	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_X_MSB, (char) ((xOutMag16BitAvg >> 8) & 0xFF));
+	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_Y_LSB, (char) (yOutMag16BitAvg & 0xFF));
+	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_Y_MSB, (char) ((yOutMag16BitAvg >> 8) & 0xFF));
+	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_Z_LSB, (char) (zOutMag16BitAvg & 0xFF));
+	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_Z_MSB, (char) ((zOutMag16BitAvg >> 8) & 0xFF));
 //
 //	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG4, 0x01); // Enable DRDY interrupt
 //	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG5, 0x01); // DRDY interrupt on INT1
@@ -160,7 +172,7 @@ int ReadAccMagData() {
 	ndof.magY = (float) ( (int16_t) (ndofDataBuffer[8]<<8 | ndofDataBuffer[9])) / SENSITIVITY_MAG;
 	ndof.magZ = (float) ( (int16_t) (ndofDataBuffer[10]<<8 | ndofDataBuffer[11])) / SENSITIVITY_MAG;
 
-	ndof.heading = 180 + atan2(ndof.magY, ndof.magX) * 180 / 3.141592;
+	ndof.heading = atan2f(ndof.magY, ndof.magX) * 180 / 3.141592;
 
 //	if (accCalibrated) {
 //		endTime = TIM5->CNT;

@@ -1,5 +1,6 @@
 #include "Gyroscope.h"
 #include <math.h>
+#include "Accelerometer.h"
 
 void EXTI9_5_IRQHandler (void) {
 	if (EXTI->PR & EXTI_PR_PR8) {	// Check interrupt flag for PR8
@@ -28,7 +29,7 @@ void InitGyro() {
 
 uint32_t nextGyroRead = gyroReadInterval;
 uint32_t startTime;
-float xAngle, yAngle, zAngle;
+//float xAngle, yAngle, zAngle;
 
 void CalibrateGyro(int numberOfSamples) {
 	float n = 1.0;
@@ -73,10 +74,44 @@ int ReadGyroData() {
 	float dt = ((endTime - startTime) / 10000.0);
 	startTime = endTime;
 	if (gyroCalibrated) {
-		xAngle = xAngle + gyro.x * dt;
-		yAngle = yAngle + gyro.y * dt;
-		zAngle = zAngle + gyro.z * dt;
+		float tmpRoll = gyro.roll + gyro.x * dt;
+		float rollAcc = atan2f(ndof.accY, ndof.accZ) * 180 / M_PI;
+		gyro.roll = tmpRoll * 0.95 + rollAcc * 0.05;
+
+		float tmpPitch = gyro.pitch + gyro.y * dt;
+		float pitchAcc = atan2f(ndof.accX, ndof.accZ) * 180 / M_PI;
+		gyro.pitch = tmpPitch * 0.95 + pitchAcc * 0.05;
+
+//		float radPitch = gyro.pitch * 0.0174532925;
+//		float radRoll = gyro.roll * 0.0174532925;
+//		gyro.yaw = 180 * atan2f(ndof.accZ, sqrt(ndof.accX*ndof.accX + ndof.accZ*ndof.accZ))/M_PI;
+
+
+
+
+
+		float tmpYaw = gyro.yaw + gyro.z * dt;
+		if (tmpYaw > 180) {
+			tmpYaw = -180 + (tmpYaw - 180);
+		} else if (tmpYaw < -180) {
+			tmpYaw = 180 - (tmpYaw + 180);
+		}
+		if ( !((tmpYaw < 0) == (ndof.heading < 0)) ) {
+			tmpYaw = -tmpYaw;
+		}
+		gyro.yaw = tmpYaw * 0.95 + ndof.heading * 0.05;
+
+
+
+
+
+		//xAngle = 0.98 * (xAngle + gyro.x * dt) + 0.02 * ndof.accY;
 	}
+//	if (gyroCalibrated) {
+//		xAngle = xAngle + gyro.x * dt;
+//		yAngle = yAngle + gyro.y * dt;
+//		zAngle = zAngle + gyro.z * dt;
+//	}
 	return 0;
 
 }
