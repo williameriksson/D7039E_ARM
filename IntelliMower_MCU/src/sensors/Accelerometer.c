@@ -31,18 +31,29 @@ void InitAccMag() {
 	for(int i = 0; i < 1000; i++);
 	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG2, 0x02); // High resolution mode
 	for(int i = 0; i < 1000; i++);
+
+
+	short xOutMag16BitAvg = 165;
+	short yOutMag16BitAvg = -502;
+	short zOutMag16BitAvg = 1271;
+
+	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_X_LSB, (char) (xOutMag16BitAvg & 0xFF));
+	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_X_MSB, (char) ((xOutMag16BitAvg >> 8) & 0xFF));
+	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_Y_LSB, (char) (yOutMag16BitAvg & 0xFF));
+	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_Y_MSB, (char) ((yOutMag16BitAvg >> 8) & 0xFF));
+	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_Z_LSB, (char) (zOutMag16BitAvg & 0xFF));
+	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_Z_MSB, (char) ((zOutMag16BitAvg >> 8) & 0xFF));
 //
 //	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG4, 0x01); // Enable DRDY interrupt
 //	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG5, 0x01); // DRDY interrupt on INT1
 	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG1, NDOF_ACTIVE_VAL); // ODR = 3.125Hz, Reduced noise, Active mode
 }
 
-void AccCalibration() {
+void CalibrateAcc(int nrOfSamples) {
 	int8_t xAccelOffset, yAccelOffset, zAccelOffset;
 	int16_t xOutAccel14Bit, yOutAccel14Bit, zOutAccel14Bit;
 	int32_t tmpXOutAccel, tmpYOutAccel, tmpZOutAccel;
 
-	int nrOfSamples = 5000;
 	for (int i = 0; i < nrOfSamples; i++) {
 
 		ReadAccMagData();
@@ -77,22 +88,23 @@ void AccCalibration() {
 
 }
 
-void MagCalibration() {
+void CalibrateMag(int nrOfSamples) {
 	short xOutMag16BitAvg, yOutMag16BitAvg, zOutMag16BitAvg;
 	short xOutMag16BitMax, yOutMag16BitMax, zOutMag16BitMax;
 	short xOutMag16BitMin, yOutMag16BitMin, zOutMag16BitMin;
 	short xOutMag16Bit, yOutMag16Bit, zOutMag16Bit;
 
-	for (int i = 0; i < 5000; i++) {
-		while(!accDataReady);
-		accDataReady = 0;
-		I2cReadMultipleBytes(NDOF_ACC_MAG_ADDR, NDOF_M_OUT_X_MSB, 6, ndofDataBuffer);
+	int n = 1;
+	while (n <= nrOfSamples) {
 
-		xOutMag16Bit = (int16_t) (ndofDataBuffer[0]<<8 | ndofDataBuffer[1]);   // Compute 16-bit X-axis magnetic output value
-		yOutMag16Bit = (int16_t) (ndofDataBuffer[2]<<8 | ndofDataBuffer[3]);   // Compute 16-bit Y-axis magnetic output value
-		zOutMag16Bit = (int16_t) (ndofDataBuffer[4]<<8 | ndofDataBuffer[5]);   // Compute 16-bit Z-axis magnetic output value
+		int isOldData = ReadAccMagData();
+		if(isOldData) {continue;}
 
-		if (i == 0) {
+		xOutMag16Bit = (int16_t) (ndofDataBuffer[6]<<8 | ndofDataBuffer[7]);   // Compute 16-bit X-axis magnetic output value
+		yOutMag16Bit = (int16_t) (ndofDataBuffer[8]<<8 | ndofDataBuffer[9]);   // Compute 16-bit Y-axis magnetic output value
+		zOutMag16Bit = (int16_t) (ndofDataBuffer[10]<<8 | ndofDataBuffer[11]);   // Compute 16-bit Z-axis magnetic output value
+
+		if (n == 1) {
 			xOutMag16BitMax = xOutMag16Bit;
 			xOutMag16BitMin = xOutMag16Bit;
 
@@ -114,7 +126,7 @@ void MagCalibration() {
 		// Check to see if current sample is the maximum or minimum Z-axis value
 		if (zOutMag16Bit > zOutMag16BitMax)    {zOutMag16BitMax = zOutMag16Bit;}
 		if (zOutMag16Bit < zOutMag16BitMin)    {zOutMag16BitMin = zOutMag16Bit;}
-
+		n++;
 	}
 
 	xOutMag16BitAvg = (xOutMag16BitMax + xOutMag16BitMin) / 2;            // X-axis hard-iron offset
@@ -145,13 +157,14 @@ double xPos, yPos, zPos;
 double xVel, yVel, zVel;
 double dt = 0;
 
-void ReadAccMagData() {
+int ReadAccMagData() {
 
 //	if(!accDataReady) {return;}
 //	accDataReady = 0;
-	if (!(TIM5->CNT > nextAccRead)) {return;}
+	if (!(TIM5->CNT > nextAccRead)) {return 1;}
 	nextAccRead = TIM5->CNT + accReadInterval;
 	I2cReadMultipleBytes(NDOF_ACC_MAG_ADDR, NDOF_OUT_X_MSB, NDOF_DATA_LEN, ndofDataBuffer);
+
 	ndof.accX = (float) ( (int16_t) ((ndofDataBuffer[0]<<8 | ndofDataBuffer[1])) >> 2) / SENSITIVITY_2G;
 	ndof.accY = (float) ( (int16_t) ((ndofDataBuffer[2]<<8 | ndofDataBuffer[3])) >> 2) / SENSITIVITY_2G;
 	ndof.accZ = (float) ( (int16_t) ((ndofDataBuffer[4]<<8 | ndofDataBuffer[5])) >> 2) / SENSITIVITY_2G;
@@ -159,7 +172,7 @@ void ReadAccMagData() {
 	ndof.magY = (float) ( (int16_t) (ndofDataBuffer[8]<<8 | ndofDataBuffer[9])) / SENSITIVITY_MAG;
 	ndof.magZ = (float) ( (int16_t) (ndofDataBuffer[10]<<8 | ndofDataBuffer[11])) / SENSITIVITY_MAG;
 
-	ndof.heading = 180 + atan2(ndof.magY, ndof.magX) * 180 / 3.141592;
+	ndof.heading = atan2f(ndof.magY, ndof.magX) * 180 / 3.141592;
 
 //	if (accCalibrated) {
 //		endTime = TIM5->CNT;
@@ -171,6 +184,6 @@ void ReadAccMagData() {
 //		yPos = yPos + yVel * dt;
 //	}
 
-
+	return 0;
 
 }
