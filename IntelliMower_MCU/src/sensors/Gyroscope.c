@@ -89,17 +89,43 @@ int ReadGyroData() {
 
 
 
+		float tmpYaw = gyro.yaw - gyro.z * dt;
 
-		float tmpYaw = gyro.yaw + gyro.z * dt;
 		if (tmpYaw > 180) {
-			tmpYaw = -180 + (tmpYaw - 180);
+			tmpYaw = tmpYaw - 360;
 		} else if (tmpYaw < -180) {
-			tmpYaw = 180 - (tmpYaw + 180);
+			tmpYaw = tmpYaw + 360;
 		}
-		if ( !((tmpYaw < 0) == (ndof.heading < 0)) ) {
-			tmpYaw = -tmpYaw;
+
+		gyro.yaw = tmpYaw;
+
+		tmpYaw = gyro.yawHeading - gyro.z * dt;
+
+
+		tmpYaw = tmpYaw * 0.999 + ndof.heading * 0.001;
+
+
+		if (tmpYaw > 180) {
+			tmpYaw = tmpYaw - 360;
+		} else if (tmpYaw < -180) {
+			tmpYaw = tmpYaw + 360;
 		}
-		gyro.yaw = tmpYaw * 0.95 + ndof.heading * 0.05;
+
+		gyro.yawHeading = tmpYaw;
+
+//		float tmpYaw = gyro.yaw - gyro.z * dt;
+//		if (tmpYaw > 180) {
+//			tmpYaw = -180 + (tmpYaw - 180);
+//		} else if (tmpYaw < -180) {
+//			tmpYaw = 180 + (tmpYaw + 180);
+//		}
+//
+//		if ( !((tmpYaw < 0) == (ndof.heading < 0)) ) {
+//			gyro.yaw = tmpYaw * -0.999 + ndof.heading * 0.001;
+//		} else {
+//			gyro.yaw = tmpYaw * 0.999 + ndof.heading * 0.001;
+//		}
+		//gyro.yaw = tmpYaw;
 
 
 

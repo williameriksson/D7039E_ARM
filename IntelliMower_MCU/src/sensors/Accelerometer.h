@@ -51,7 +51,6 @@ uint8_t accCalibrated;
 uint8_t magCalibrated;
 uint8_t ndofDataBuffer[NDOF_DATA_LEN];
 
-
 typedef struct {
 	float accX;
 	float accY;
@@ -62,7 +61,7 @@ typedef struct {
 	float heading;
 } NDOF;
 
-
 NDOF ndof;
+
 
 #endif /* SENSORS_ACCELEROMETER_H_ */

@@ -1,5 +1,6 @@
 #include "Accelerometer.h"
 #include <math.h>
+//#include "Gyroscope.h"
 
 uint32_t nextAccRead = accReadInterval;
 
@@ -33,9 +34,9 @@ void InitAccMag() {
 	for(int i = 0; i < 1000; i++);
 
 
-	short xOutMag16BitAvg = 165;
-	short yOutMag16BitAvg = -502;
-	short zOutMag16BitAvg = 1271;
+	short xOutMag16BitAvg = -892;
+	short yOutMag16BitAvg = -876;
+	short zOutMag16BitAvg = -258;
 
 	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_X_LSB, (char) (xOutMag16BitAvg & 0xFF));
 	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_X_MSB, (char) ((xOutMag16BitAvg >> 8) & 0xFF));
@@ -47,6 +48,7 @@ void InitAccMag() {
 //	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG4, 0x01); // Enable DRDY interrupt
 //	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG5, 0x01); // DRDY interrupt on INT1
 	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG1, NDOF_ACTIVE_VAL); // ODR = 3.125Hz, Reduced noise, Active mode
+
 }
 
 void CalibrateAcc(int nrOfSamples) {
@@ -87,6 +89,7 @@ void CalibrateAcc(int nrOfSamples) {
 	accCalibrated = 1;
 
 }
+short xCalVal, yCalVal, zCalVal;
 
 void CalibrateMag(int nrOfSamples) {
 	short xOutMag16BitAvg, yOutMag16BitAvg, zOutMag16BitAvg;
@@ -139,6 +142,10 @@ void CalibrateMag(int nrOfSamples) {
 	yOutMag16BitAvg <<= 1;
 	zOutMag16BitAvg <<= 1;
 
+	xCalVal = xOutMag16BitAvg;
+	yCalVal = yOutMag16BitAvg;
+	zCalVal = zOutMag16BitAvg;
+
 	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_CTRL_REG1, 0x00);          // Standby mode to allow writing to the offset registers
 
 	I2cWriteByte(NDOF_ACC_MAG_ADDR, NDOF_M_OFF_X_LSB, (char) (xOutMag16BitAvg & 0xFF));
@@ -172,7 +179,11 @@ int ReadAccMagData() {
 	ndof.magY = (float) ( (int16_t) (ndofDataBuffer[8]<<8 | ndofDataBuffer[9])) / SENSITIVITY_MAG;
 	ndof.magZ = (float) ( (int16_t) (ndofDataBuffer[10]<<8 | ndofDataBuffer[11])) / SENSITIVITY_MAG;
 
+//	double xH = ndof.magX * cos(gyro.pitch) + ndof.magY * sin(gyro.pitch) * sin(gyro.roll) + ndof.magZ * cos(gyro.roll) * sin(gyro.pitch);
+//	double yH = ndof.magY * cos(gyro.roll) - ndof.magZ * sin(gyro.roll);
+//	ndof.heading = atan2(-yH, xH) * 180 / 3.141592;
 	ndof.heading = atan2f(ndof.magY, ndof.magX) * 180 / 3.141592;
+
 
 //	if (accCalibrated) {
 //		endTime = TIM5->CNT;

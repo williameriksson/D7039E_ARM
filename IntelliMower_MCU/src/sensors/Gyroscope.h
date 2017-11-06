@@ -37,6 +37,7 @@ typedef struct {
 	float pitch;
 	float roll;
 	float yaw;
+	float yawHeading;
 } NDOF_GYRO;
 
 NDOF_GYRO gyro;
