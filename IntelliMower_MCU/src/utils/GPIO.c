@@ -61,6 +61,11 @@ void GpioSetOtyper(GPIO_TypeDef *gpio, int pin) {
 	gpio->OTYPER |= ((uint8_t)0x1 << pin);
 }
 
+void GpioSetPupdr(GPIO_TypeDef *gpio, int pin, GPIO_PUPDR mode) {
+	gpio->PUPDR &= ~((uint8_t)0x3 << pin*2);
+	gpio->PUPDR |= ((uint8_t)mode << pin*2);
+}
+
 int GpioReadInputPin(GPIO_TypeDef *gpio, int pin) {
 	int temp = gpio->IDR;
 	return (temp >> pin) & 0x1;
