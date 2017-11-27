@@ -9,6 +9,20 @@
 #ifndef FRAMEWORK_COMMON_H_
 #define FRAMEWORK_COMMON_H_
 
+#include "com/SPI.h"
+#include "framework/ControlLoop.h"
+#include "motors/Steering.h"
+#include "sensors/UltraSonic.h"
+#include "utils/containers/CircularBuffer.h"
+#include "utils/containers/Queue.h"
+#include "utils/containers/Stack.h"
+#include "com/I2C.h"
+#include "SafetyControl.h"
+#include "sensors/Accelerometer.h"
+#include "sensors/Gyroscope.h"
+#include "sensors/Encoder.h"
+#include "utils/Geometry.h"
+
 
 void 	CommonInit(); 				// master init
 int 	CommonIsInitialized();		// init check

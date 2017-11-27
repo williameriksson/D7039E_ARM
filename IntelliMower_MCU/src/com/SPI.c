@@ -5,10 +5,12 @@
  *      Author: rjons
  */
 #include "SPI.h"
+#include "framework/CmdSystem.h"
 #include "stm32f411xe.h"
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_nucleo.h"
 #include "utils/GPIO.h"
+#include "utils/Cobs.h"
 
 // private variables
 #define RECEIVE_BUFSIZE 128
@@ -65,7 +67,7 @@ void SPI2_IRQHandler (void) {
 	if ( SPI2->SR & SPI_SR_RXNE ) {
 
 		ch = SPI2->DR;					// read from SPI reg (SPI clears bit own its own in MCU)
-		SPI2->DR = 12; // TEST
+
 		if( ch ) {
 			rcvBuf[bufIndex] = ch;
 			bufIndex++;

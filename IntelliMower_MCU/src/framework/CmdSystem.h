@@ -6,6 +6,13 @@
 #define FRAMEWORK_CMDSYSTEM_H_
 
 #include <stdint.h>
+#include "utils/GPIO.h"
+#include "framework/ControlLoop.h"
+#include "motors/Steering.h"
+#include "sensors/Gyroscope.h"
+#include "sensors/Encoder.h"
+#include "utils/convertions/intLib.h"
+#include "utils/Geometry.h"
 
 //
 typedef enum {

@@ -2,13 +2,7 @@
  * CmdSystem.c
  */
 
-#include "utils/GPIO.h"
 #include "framework/CmdSystem.h"
-#include "motors/Steering.h"
-#include "utils/convertions/intLib.h"
-#include "utils/Geometry.h"
-#include "framework/ControlLoop.h"
-
 
 // private variables
 static volatile uint8_t inControlLoop = 0x00;
@@ -69,14 +63,18 @@ uint8_t RunCommand( uint8_t *rpiCmds ) {
 			RotateRight( setMotor.speed );
 			break;
 		case MCU_MOVE :
+			// a move instruction has been recieved, decide how much to turn
+			// and start controlloop.
 			ByteArrToInt32(&rpiCmds[2], 16, coordinates);
 			inControlLoop = 1;
 			// start internal interrupts that handle the control loop
-			// FIXME! feed mCoords to control loop make an fifo in there
 			Point currentPos = { .x = coordinates[0], .y = coordinates[1]};
 			Point target = { .x = coordinates[2], .y = coordinates[3]};
-			DriveForward(setMotor.speed);
-			InitControlLoop(&currentPos, &target, setMotor.speed);
+//			gyro.yaw = 0.0f;
+//			DriveForward(setMotor.speed);
+			float anglesToTurn = 0.0f;//get this from geometry
+			RotateDegrees(anglesToTurn, posAngle);
+			InitControlLoop(&currentPos, &target, setMotor.speed); //starts controlloop to keep on line
 			break;
 		case MCU_FEED :
 			ByteArrToInt32(&rpiCmds[1], 8, coordinates);

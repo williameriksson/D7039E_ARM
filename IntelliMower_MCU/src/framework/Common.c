@@ -1,17 +1,7 @@
 /*
  * Common.c
  */
-
 #include "Common.h"
-#include "com/SPI.h"
-#include "motors/Steering.h"
-#include "sensors/UltraSonic.h"
-#include "utils/containers/CircularBuffer.h"
-#include "utils/containers/Queue.h"
-#include "utils/containers/Stack.h"
-#include "com/I2C.h"
-#include "sensors/Accelerometer.h"
-
 // private variables
 volatile int isInitialized = 0;
 volatile int quitProgram   = 0;
@@ -22,9 +12,16 @@ volatile int quitProgram   = 0;
 void CommonInit() {
 	// place all inits here
 //	InitSPI();
-//	InitSteering();
-	InitUltrasonic();
+	InitSteering();
+	InitEncoders();
+	InitI2C();
+	InitAccMag();
+	InitGyro();
+//	InitUltrasonic();
+	InitSafetyControl();
 	isInitialized = 1;
+	gyroCalibrated = 1;
+//	initUART();
 }
 
 /*
@@ -33,7 +30,6 @@ void CommonInit() {
 int CommonIsInitialized() {
 	return isInitialized;
 }
-
 /*
  *
  */
@@ -47,9 +43,29 @@ void CommonQuit() {
  */
 
 void CommonFrame() {
+	int state = 0;
+//	uint8_t spiTest = 0;
+//	Point currentPos = { .x = 0.0f, .y = 0.0f};
+//	Point target = { .x = 0.0f, .y = 100.0f};
 
+//	gyro.yaw = 0.0f;
+//	DriveForward(-20);
+//	InitControlLoop(&currentPos, &target, -20);
+	RotateLeft(2000);
 	while( !quitProgram ) {
-		// busy wait, let interrupt handlers take over
+
+//		USART6->DR = 0x1; //for testing UART
+		ReadAccMagData();
+		ReadGyroData();
+
+		//demos below
+//		state = DemoCurve(state, -30, 200.0);
+//		state = DemoSquare(state, -20);
+//		state = DemoRotate(state, -30, 0);
+//		state = DemoEncoderNav(state, -3000);
+//		state = DemoAvoidance(state, -30);
+
+//		SteeringHandler(posAngle); //in case a steering procedure is ongoing.
 	}
 }
 

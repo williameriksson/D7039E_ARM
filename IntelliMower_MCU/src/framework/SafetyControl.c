@@ -28,8 +28,11 @@ void TIM1_TRG_COM_TIM11_IRQHandler() {
 	BumperBack = GpioReadInputPin(GPIOC, 5);
 
 //	if(IsObjectInFront() || LiftSensor || BumperFront || BumperBack) {
-	if(LiftSensor || BumperFront || BumperBack) {
+	if(LiftSensor || BumperFront || BumperBack ) {
 		HaltOperation();
+	}
+	else {
+		DriveForward(-2000);
 	}
 }
 

@@ -60,31 +60,31 @@ int ccrOne; //for testing in STM viewier.
 int ccrTwo;
 
 
-void TIM3_IRQHandler() {
-	TIM3->SR &= ~TIM_SR_UIF;
-	int ccr;
-	int* write;
-//	int fallingEdge = 0;
-	if(TIM3->SR & TIM_SR_CC1IF) {
-		ccr = TIM3->CCR1;
-		write = &distanceSensors.distances[0];
-	}
-	else if(TIM3->SR & TIM_SR_CC2IF) {
-		ccr = TIM3->CCR2;
-		write = &distanceSensors.distances[1];
-	}
-	else if(TIM3->SR & TIM_SR_CC3IF) {
-		ccr = TIM3->CCR3;
-		write = &distanceSensors.distances[2];
-	}
-	else if(TIM3->SR & TIM_SR_CC4IF) {
-		ccr = TIM3->CCR4;
-		write = &distanceSensors.distances[3];
-	}
-	if(ccr <= 250) { //TODO: do this in a better way preferably.
-		*write = ccr;
-	}
-	else {
-	}
-	TIM3->CNT = 0;
-}
+//void TIM3_IRQHandler() {
+//	TIM3->SR &= ~TIM_SR_UIF;
+//	int ccr;
+//	int* write;
+////	int fallingEdge = 0;
+//	if(TIM3->SR & TIM_SR_CC1IF) {
+//		ccr = TIM3->CCR1;
+//		write = &distanceSensors.distances[0];
+//	}
+//	else if(TIM3->SR & TIM_SR_CC2IF) {
+//		ccr = TIM3->CCR2;
+//		write = &distanceSensors.distances[1];
+//	}
+//	else if(TIM3->SR & TIM_SR_CC3IF) {
+//		ccr = TIM3->CCR3;
+//		write = &distanceSensors.distances[2];
+//	}
+//	else if(TIM3->SR & TIM_SR_CC4IF) {
+//		ccr = TIM3->CCR4;
+//		write = &distanceSensors.distances[3];
+//	}
+//	if(ccr <= 250) { //TODO: do this in a better way preferably.
+//		*write = ccr;
+//	}
+//	else {
+//	}
+//	TIM3->CNT = 0;
+//}

@@ -10,6 +10,11 @@
 //	MotorController *rightMotor;
 //}Steering;
 
+typedef enum {
+	IDLE,
+	TURNING
+}STEERING_STATE;
+
 void InitSteering();
 int RotateLeft(int speed);
 int RotateRight(int speed);
