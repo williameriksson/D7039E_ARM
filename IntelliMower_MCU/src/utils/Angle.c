@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include "Angle.h"
 
 // returns the distance between two points in a cartesian coordinate system
 float GetDistTwoPoints( Point p1, Point p2 ) {
@@ -47,37 +48,37 @@ float GetTurnAngle( Point prvPoint, Point curPoint, Point nxtPoint ) {
   }
   return turnDeg;
 }
-	Point p0;
-	Point p1;
-	Point p2;
-	Point p3;
-	
-	float dP12 = 0;
-	float dP23 = 0;
-	float dP13 = 0;
-	
-int main(){
-
-	p1.x = 70.25;
-	p1.y = 34.25;
-
-	p2.x = 80.25;
-	p2.y = 41.25;
-
-	p3.x = 40.25;
-	p3.y = 76.34;
-
-	dP12 = GetDistTwoPoints( p2, p1 );
-	dP23 = GetDistTwoPoints( p2, p3 );
-	dP13 = GetDistTwoPoints( p1, p3 );
-	
-    printf("dP12: %f\n", dP12);
-	printf("dP23: %f\n", dP23);
-	printf("dP13: %f\n", dP13);
-	
-	float deg = GetTurnAngle( p1, p2, p3 );
-	printf("turn angle: %f\n", deg);
-	
-
-    return 0;
-}
+//	Point p0;
+//	Point p1;
+//	Point p2;
+//	Point p3;
+//
+//	float dP12 = 0;
+//	float dP23 = 0;
+//	float dP13 = 0;
+//
+//int main(){
+//
+//	p1.x = 70.25;
+//	p1.y = 34.25;
+//
+//	p2.x = 80.25;
+//	p2.y = 41.25;
+//
+//	p3.x = 40.25;
+//	p3.y = 76.34;
+//
+//	dP12 = GetDistTwoPoints( p2, p1 );
+//	dP23 = GetDistTwoPoints( p2, p3 );
+//	dP13 = GetDistTwoPoints( p1, p3 );
+//
+//    printf("dP12: %f\n", dP12);
+//	printf("dP23: %f\n", dP23);
+//	printf("dP13: %f\n", dP13);
+//
+//	float deg = GetTurnAngle( p1, p2, p3 );
+//	printf("turn angle: %f\n", deg);
+//
+//
+//    return 0;
+//}
