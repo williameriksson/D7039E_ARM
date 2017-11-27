@@ -3,22 +3,22 @@
 #include "Angle.h"
 
 // returns the distance between two points in a cartesian coordinate system
-float GetDistTwoPoints( Point p1, Point p2 ) {
+double GetDistTwoPoints( Point p1, Point p2 ) {
    return sqrt( ( (p2.x - p1.x) * (p2.x - p1.x) ) + ( (p2.y - p1.y) * (p2.y - p1.y) ) );
 }
 
 // returns the smallest euler degree angle between three points
-float GetTurnAngle( Point prvPoint, Point curPoint, Point nxtPoint ) {
+double GetTurnAngle( Point prvPoint, Point curPoint, Point nxtPoint ) {
   Point p1 = prvPoint;
   Point p2 = curPoint;
   Point p3 = nxtPoint;
 
   // distances between points
-  float dP12 = GetDistTwoPoints( p1, p2 );
-  float dP23 = GetDistTwoPoints( p2, p3 );
-  float dP13 = GetDistTwoPoints( p1, p3 );
+  double dP12 = GetDistTwoPoints( p1, p2 );
+  double dP23 = GetDistTwoPoints( p2, p3 );
+  double dP13 = GetDistTwoPoints( p1, p3 );
 
-  float deg = 0;
+  double deg = 0;
   deg = acos( ( (dP12 * dP12) + (dP23 * dP23) - (dP13 * dP13) ) / ( 2 * dP12 * dP23 ) );
   
 	/*double num = p2.y*(p1.x-p3.x) + p1.y*(p3.x-p2.x) + p3.y*(p2.x-p1.x);
@@ -34,7 +34,7 @@ float GetTurnAngle( Point prvPoint, Point curPoint, Point nxtPoint ) {
     deg -= 180;
   }*/
   
-  float turnDeg = 180 - deg;
+  double turnDeg = 180 - deg;
   //float turnDeg = deg;
   
   if ( 0 > (nxtPoint.x - prvPoint.x) ) {
