@@ -5,7 +5,10 @@
 #include "stm32f4xx_nucleo.h"
 
 typedef struct {
-	int distances[4];
+	double distanceOuterLeft;
+	double distanceInnerLeft;
+	double distanceOuterRight;
+	double distanceInnerRight;
 }DistanceSensors;
 
 DistanceSensors distanceSensors;
