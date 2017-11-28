@@ -1,6 +1,12 @@
 #include "UltraSonic.h"
 
-#define PwToCm(pw) pw * 100.0 / 58.0
+#define PwToCm(pw) (pw) * 100.0 / 58.0
+
+int startOne;
+int startTwo;
+int startThree;
+int startFour;
+
 
 void InitUltrasonic() {
 //	__disable_irq();
@@ -10,7 +16,12 @@ void InitUltrasonic() {
 	distanceSensors.distanceOuterRight = 100;
 	distanceSensors.distanceInnerRight = 100;
 
- 	InitTimerPWM(TIM9, 1, GPIOA, 5, 40000, 2); // Trigger timer
+	startOne = 0;
+	startTwo= 0;
+	startThree = 0;
+	startFour = 0;
+
+ 	InitTimerPWM(TIM9, 1, GPIOA, 2, 1000, 5); // Trigger timer
 
 	/*
 	 * sets up a timer for capturing input from ultrasonic sensors.
@@ -37,17 +48,17 @@ void InitUltrasonic() {
 //	TIM3->CCER &= ~TIM_CCER_CC1P; //force to 0, normal polarity
 //	TIM3->CCER &= ~TIM_CCER_CC1NP; //force to 0,
 
-	TIM3->CCER |= TIM_CCER_CC1P; //force to 1, both edges
-	TIM3->CCER |= TIM_CCER_CC1NP; //force to 1,
+	TIM3->CCER &= ~TIM_CCER_CC1P; //force to 0, rising edge
+	TIM3->CCER &= ~TIM_CCER_CC1NP; //force to 0,
 
-	TIM3->CCER |= TIM_CCER_CC2P; //force to 1, both edges
-	TIM3->CCER |= TIM_CCER_CC2NP; //force to 1,
+	TIM3->CCER &= ~TIM_CCER_CC2P; //force to 0, rising edge
+	TIM3->CCER &= ~TIM_CCER_CC2NP; //force to 0,
 
-	TIM3->CCER |= TIM_CCER_CC3P;
-	TIM3->CCER |= TIM_CCER_CC3NP;
+	TIM3->CCER &= ~TIM_CCER_CC3P;
+	TIM3->CCER &= ~TIM_CCER_CC3NP;
 
-	TIM3->CCER |= TIM_CCER_CC4P;
-	TIM3->CCER |= TIM_CCER_CC4NP;
+	TIM3->CCER &= ~TIM_CCER_CC4P;
+	TIM3->CCER &= ~TIM_CCER_CC4NP;
 
 	TIM3->DIER |= TIM_DIER_CC1IE;
 	TIM3->DIER |= TIM_DIER_CC2IE;
@@ -74,27 +85,59 @@ void InitUltrasonic() {
 
 int ccrOne; //for testing in STM viewier.
 int ccrTwo;
-
+int Timer_3;
 
 void TIM3_IRQHandler() {
 	TIM3->SR &= ~TIM_SR_UIF;
-
+	Timer_3 = TIM3->CNT;
 	if(TIM3->SR & TIM_SR_CC1IF) {
-		distanceSensors.distanceOuterRight = PwToCm(TIM3->CCR1);
+		if(!(TIM3->CCER & TIM_CCER_CC1P)) { //rising edge
+			startOne = TIM3->CCR1;
+			TIM3->CCER |= TIM_CCER_CC1P; //sets to interrupt on falling edge
+		}
+		else { //falling edge
+			int temp = TIM3->CCR1 - startOne;
+			distanceSensors.distanceOuterRight = PwToCm(temp);
+			TIM3->CCER &= ~TIM_CCER_CC1P; //going back to rising edge
+		}
 	}
 	else if(TIM3->SR & TIM_SR_CC2IF) {
-		distanceSensors.distanceInnerRight = PwToCm(TIM3->CCR2);
+		if(!(TIM3->CCER & TIM_CCER_CC2P)) { //rising edge
+			startTwo = TIM3->CCR2;
+			TIM3->CCER |= TIM_CCER_CC2P; //sets to interrupt on falling edge
+		}
+		else { //falling edge
+			int temp = TIM3->CCR2 - startTwo;
+			distanceSensors.distanceInnerRight = PwToCm(temp);
+			TIM3->CCER &= ~TIM_CCER_CC2P; //going back to rising edge
+		}
 	}
 	else if(TIM3->SR & TIM_SR_CC3IF) {
-		distanceSensors.distanceInnerLeft = PwToCm(TIM3->CCR3);
+		if(!(TIM3->CCER & TIM_CCER_CC3P)) { //rising edge
+			startThree = TIM3->CCR3;
+			TIM3->CCER |= TIM_CCER_CC3P; //sets to interrupt on falling edge
+		}
+		else { //falling edge
+			int temp = TIM3->CCR3 - startThree;
+			distanceSensors.distanceInnerLeft = PwToCm(temp);
+			TIM3->CCER &= ~TIM_CCER_CC3P; //going back to rising edge
+		}
 	}
 	else if(TIM3->SR & TIM_SR_CC4IF) {
-		distanceSensors.distanceOuterLeft = PwToCm(TIM3->CCR4);
+		if(!(TIM3->CCER & TIM_CCER_CC4P)) { //rising edge
+			startFour = TIM3->CCR4;
+			TIM3->CCER |= TIM_CCER_CC4P; //sets to interrupt on falling edge
+		}
+		else { //falling edge
+			int temp = TIM3->CCR4 - startFour;
+			distanceSensors.distanceOuterLeft = PwToCm(temp);
+			TIM3->CCER &= ~TIM_CCER_CC4P; //going back to rising edge
+			TIM3->CNT = 0;
+		}
 	}
 //	if(ccr <= 250) { //TODO: do this in a better way preferably.
 //		*write = ccr;
 //	}
 	//else {
 	//}
-	//TIM3->CNT = 0;
 }
