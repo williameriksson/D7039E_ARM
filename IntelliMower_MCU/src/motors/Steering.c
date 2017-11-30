@@ -8,9 +8,9 @@
 
 MotorController leftMotorController = {
 		.timer = TIM2,
-		.channel = 1, //change to be ch 1
-		.gpio = GPIOA, //change to be GPIOA
-		.pin = 5, //change to pin 5
+		.channel = 1,
+		.gpio = GPIOA,
+		.pin = 5,
 		.pwmMin = 1,
 		.pwmMax = 49,
 		.frequency = 20000,
@@ -30,10 +30,16 @@ MotorController rightMotorController = {
 		.currentSpeed = 0,
 	};
 
-STEERING_STATE steering_state;
+/* Turning procedure vars */
 float initialHeading;
 float degreesToTurn;
 
+/* Driving procedure vars */
+Point prevPos = {.x = 0.0, .y = 0.0};
+Point targetPos = {.x = 0.0, .y = 0.0};
+double prevDistance = 1000000;
+
+/* STM studio monitoring */
 int leftSpeedGlobal;
 int rightSpeedGlobal;
 int leftPwGlobal;
@@ -44,6 +50,7 @@ void InitSteering() {
 	InitMotorControl(&rightMotorController);
 	SetMotorSpeed(&leftMotorController, 0);
 	SetMotorSpeed(&rightMotorController, 0);
+	_state = IDLE;
 }
 
 //Set motors to equal speed to drive straight forward.
@@ -126,23 +133,55 @@ int RotateRight(int speed) {
 	return 0; //all fine
 }
 
+/* Startes rotating procedure, this should be checked in Steeringhandler for termination*/
 int RotateDegrees(float degToTurn, float currentHeading) {
-	if(steering_state = IDLE) {
-	steering_state = TURNING;
-	initialHeading = currentHeading;
-	degreesToTurn = degToTurn;
-	return 0;
+	if(_state == IDLE) {
+		_state = TURNING;
+		initialHeading = currentHeading;
+		degreesToTurn = degToTurn;
+		if (degToTurn < 0) {
+			RotateLeft(3000);
+		}
+		else {
+			RotateRight(3000);
+		}
+		return 0; //all fine
 	}
 	return 1; //trying to turn when not in IDLE state.
 }
 
-
 void SteeringHandler(float currentHeading) {
-	if(steering_state == TURNING) {
+	if(_state == TURNING) {
 		//is in the process of turning x degrees.
 		if(abs(currentHeading) >= abs(initialHeading + degreesToTurn) ) { //turn has been reached.
 			//has turned desired degrees.
-			steering_state = IDLE;
+			DriveForward(-3000);
+			_state = DRIVING;
 		}
 	}
 }
+
+void DrivingHandler(Point *pos) {
+	if(_state == DRIVING) {
+//		double distance = GetDistTwoPoints(*pos, targetPos);
+//		if(distance <= prevDistance) {
+////		prevDistance = distance;
+//			//it's still approaching the target.
+//		}
+//		else {
+//			DriveForward(0);
+//			prevDistance = 1000000;
+//			_state = IDLE;
+//		}
+	}
+	else {
+		prevDistance = 1000000;
+	}
+}
+
+int SetDriveTarget(Point newTarget) {
+	targetPos.x = newTarget.x;
+	targetPos.y = newTarget.y;
+	return 0;
+}
+

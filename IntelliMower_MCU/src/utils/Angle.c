@@ -35,7 +35,7 @@ double GetTurnAngle( Point prvPoint, Point curPoint, Point nxtPoint ) {
 	double angleRad = atan(ratio);*/
 
   deg = (deg*180) / 3.14159265359;
-  deg = fabs(deg);
+  deg = 180.0 - fabs(deg);
   double dir = RightTurn(p1, p2, p3);
   return deg * dir;
 }

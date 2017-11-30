@@ -71,22 +71,6 @@ void InitEncoders() {
 
 	NVIC_SetPriority(TIM4_IRQn, 20); // Set the priority, this should probably be changed..
 	NVIC_EnableIRQ(TIM4_IRQn); // Enable the interrupt
-
-//	TimerRegEnable(TIM3);
-//	TIM3->PSC = 4096-1; //sets the register
-//	TIM3->ARR = 0xFFFF;
-//	TIM3->CR1 |= TIM_CR1_CEN;
-//
-//	TIM3->CCMR1 |= TIM_CCMR1_CC2S_0;
-//
-//	TIM3->CCER |= TIM_CCER_CC2P; //force to 0, rising edge
-//	TIM3->CCER |= TIM_CCER_CC2NP; //force to 0,
-//
-//	TIM3->DIER |= TIM_DIER_CC2IE;
-//	TIM3->CCER |= TIM_CCER_CC2E;
-//
-//	NVIC_SetPriority(TIM3_IRQn, 20); // Set the priority, this should probably be changed..
-//	NVIC_EnableIRQ(TIM3_IRQn); // Enable the interrupt
 }
 
 int GetEncoderSpeed(int reg, int prevReg, int direction) {
@@ -110,45 +94,10 @@ void ResetEncoder(RotaryEncoder *encoder) {
 	encoder->timeout = 1;
 }
 
-//void TIM3_IRQHandler() {
-//	TIM3->SR &= ~TIM_SR_UIF;
-//	GpioSetPinToggle(GPIOA, 9);
-//	if(TIM3->SR & TIM_SR_CC2IF) { //Encoder 1 rising edge
-////		if(TIM3->CNT - leftEncoder.prevReg < 100) {
-////			int trash = TIM3->CCR2;
-////			return;
-////		}
-//		intCount++;
-//		leftEncoder.reg = TIM3->CCR2;
-//		TIM3->SR &= ~TIM_SR_CC2IF;
-//		ccrReg = rightEncoder.reg;
-//		ccrPrevReg = rightEncoder.prevReg;
-//		countReg = TIM3->CNT;
-//		int direction = GpioReadInputPin(GPIOB, 4);
-//		leftEncoder.encoderSpeed = GetEncoderSpeed(leftEncoder.reg, leftEncoder.prevReg, 1); //TODO: fix this
-//		leftEncoder.prevReg = rightEncoder.reg;
-//		leftEncoder.encoderDistance += 75.4 / 16.0 * (leftEncoder.encoderSpeed / abs(leftEncoder.encoderSpeed));
-//		leftEncoder.timeout = 0; //this encoder has interrupted this counter-lapse
-//		leftAngle += 22.5;
-//		// x = 0.11046, y = 2.3475
-//
-//		if(GetLeftSpeed() >= 0) {
-//			xxPos += 0.11046 * cos(posAngle / 180.0 * M_PI) - 2.3475 * sin(posAngle / 180.0 * M_PI);
-//			yyPos += 0.11046 * sin(posAngle / 180.0 * M_PI) + 2.3475 * cos(posAngle / 180.0 * M_PI);
-//			posAngle += 5.388;
-//		}
-//		else {
-//			xxPos -= 0.11046 * cos(posAngle / 180.0 * M_PI) - 2.3475 * sin(posAngle / 180.0 * M_PI);
-//			yyPos -= 0.11046 * sin(posAngle / 180.0 * M_PI) + 2.3475 * cos(posAngle / 180.0 * M_PI);
-//			posAngle -= 5.388;
-//		}
-//	}
-//}
-
 void TIM4_IRQHandler() {
 	TIM4->SR &= ~TIM_SR_UIF;
 	if(TIM4->SR & TIM_SR_CC1IF) { //Encoder 1 rising edge
-		GpioSetPinToggle(GPIOC, 8);
+//		GpioSetPinToggle(GPIOC, 8);
 //		if(TIM4->CNT - rightEncoder.prevReg < 100) {
 //			int trash = TIM4->CCR1;
 //			return;
@@ -177,7 +126,7 @@ void TIM4_IRQHandler() {
 		}
 	}
 	else if(TIM4->SR & TIM_SR_CC2IF) { //Encoder 2 rising edge
-		GpioSetPinToggle(GPIOC, 9);
+//		GpioSetPinToggle(GPIOC, 9);
 		if(TIM4->CNT - leftEncoder.prevReg < 500) {
 			int trash = TIM4->CCR2;
 			return;
