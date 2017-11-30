@@ -6,6 +6,13 @@
 double GetDistTwoPoints( Point p1, Point p2 ) {
    return sqrt( ( (p2.x - p1.x) * (p2.x - p1.x) ) + ( (p2.y - p1.y) * (p2.y - p1.y) ) );
 }
+double RightTurn(Point p1, Point p2, Point p3) {
+    double res = (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x);
+    if (res > 0) {
+        return 1.0;
+    }
+    return -1.0;
+}
 
 // returns the smallest euler degree angle between three points
 double GetTurnAngle( Point prvPoint, Point curPoint, Point nxtPoint ) {
@@ -29,24 +36,8 @@ double GetTurnAngle( Point prvPoint, Point curPoint, Point nxtPoint ) {
 
   deg = (deg*180) / 3.14159265359;
   deg = fabs(deg);
-  
-  /*if ( deg > 180 ) {
-    deg -= 180;
-  }*/
-  
-  double turnDeg = 180 - deg;
-  //float turnDeg = deg;
-  
-  if ( 0 > (nxtPoint.x - prvPoint.x) ) {
-      turnDeg = -1*turnDeg;
-  }else if ( nxtPoint.x == prvPoint.x ) {
-	  if ( curPoint.y > nxtPoint.y ) {
-		  turnDeg = 180;
-	  }else{
-		  turnDeg = 0;
-		}
-  }
-  return turnDeg;
+  double dir = RightTurn(p1, p2, p3);
+  return deg * dir;
 }
 //	Point p0;
 //	Point p1;
