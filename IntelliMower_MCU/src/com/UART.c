@@ -4,7 +4,7 @@
 uint8_t indata[RECIEVE_BUFFERSIZE];
 int indata_index;
 
-void initUART () {
+void InitUART () {
 	__disable_irq();
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
 	RCC->APB2ENR |= RCC_APB2ENR_USART6EN;
@@ -44,27 +44,35 @@ void USART6_IRQHandler (void) {
 //		}
 		SendStats();
 	}
-//	else if(USART6->SR & USART_SR_TXE) {
-//		USART6->DR = ch;
-//	}
 }
 
+
 void SendStats() {
-	float floatData[3];
-	uint8_t byteData[12];
-	uint8_t sendData[14];
+//	uint8_t byteData[5];
+	double doubleData[9];
+	uint8_t sendData[77]; //9 doubles, 5 chars
+	uint8_t cobsData[79];
 
-//	floatData[0] = leftEncoder.encoderDistance;
-//	floatData[1] = rightEncoder.encoderDistance;
+	sendData[0] = BumperFront;
+	sendData[1] = BumperBack;
+	sendData[2] = 0;
+	sendData[3] = 0;
+	sendData[4] = LiftSensor;
 
-	floatData[0] = 1.0f;
-	floatData[1] = 0.0f;
-	floatData[2] = 0.123456f;
+	doubleData[0] = (double)GetLeftSpeed();
+	doubleData[1] = (double)GetRightSpeed();
+	doubleData[2] = 1.0; //ultrasonic 1
+	doubleData[3] = 2.0; //ultrasonic 2
+	doubleData[4] = 3.0; //ultrasonic 3
+	doubleData[5] = 4.0; //ultrasonic 4
+	doubleData[6] = xxPos; //xcoord
+	doubleData[7] = yyPos; //ycoord
+	doubleData[8] = 0; //heading
 
-	FloatToByteArray(floatData, 3, byteData);
-	StuffData(byteData, 12, sendData);
 
-	SendData(sendData, 14);
+	DoubleToByteArray(doubleData, 9, sendData+5);
+	StuffData(sendData, 77, cobsData);
+	SendData(cobsData, 79);
 }
 
 void SendData(uint8_t *sendData, int byte_size) {
