@@ -17,11 +17,13 @@
 #include "utils/containers/Queue.h"
 #include "utils/containers/Stack.h"
 #include "com/I2C.h"
+#include "com/UART.h"
 #include "SafetyControl.h"
 #include "sensors/Accelerometer.h"
 #include "sensors/Gyroscope.h"
 #include "sensors/Encoder.h"
 #include "utils/Geometry.h"
+#include "demos/demos.h"
 
 
 void 	CommonInit(); 				// master init
