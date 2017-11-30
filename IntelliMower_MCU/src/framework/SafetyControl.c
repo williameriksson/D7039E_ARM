@@ -12,10 +12,6 @@ void InitSafetyControl() {
 	GpioSetInput(GPIOC, 5);
 }
 
-int BumperFront; 	//on PB02
-int LiftSensor;			//on PC0
-int BumperBack; 	//on PC05
-
 int prevSpeedLeft;
 int prevSpeedRight;
 
@@ -29,10 +25,10 @@ void TIM1_TRG_COM_TIM11_IRQHandler() {
 
 //	if(IsObjectInFront() || LiftSensor || BumperFront || BumperBack) {
 	if(LiftSensor || BumperFront || BumperBack ) {
-		HaltOperation();
+//		HaltOperation();
 	}
 	else {
-		DriveForward(-2000);
+//		DriveForward(-2000);
 	}
 }
 
@@ -50,7 +46,7 @@ void ResumeOperation() {
 
 int IsObjectInFront() {
 	for(int i = 0; i < 4; i++) {
-		if(distanceSensors.distances[i] < objectDistanceMargin) {
+		if(0) {
 			return 1;
 		}
 	}

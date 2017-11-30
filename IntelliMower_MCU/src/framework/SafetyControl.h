@@ -12,4 +12,8 @@ int IsObjectInFront();
 void HaltOperation();
 void ResumeOperation();
 
+int BumperFront; 	//on PB02
+int LiftSensor;		//on PC0
+int BumperBack; 	//on PC05
+
 #endif /* FRAMEWORK_SAFETYCONTROL_H_ */
