@@ -1,20 +1,69 @@
 #include "demos.h"
-
-
-
-/*
- * Runs the mower in a square clockwise
- * @
- */
 Point currentPos;
 
 Point pointList[] = {
-		{.x = 0.0f, .y = 0.0f},
-		{.x = 100.0f, .y = 0.0f},
-		{.x = 100.0f, .y = 100.0f},
-		{.x = 0.0f, .y = 100.0f},};
+		{.x = 0.0, .y = 0.0},
+		{.x = 0.0, .y = -100.0},
+		{.x = -100.0, .y = -100.0},
+		{.x = -100.0, .y = 0.0},
+};
 
-Point targets[3];
+int DemoPointToPoint(int state, int speed) {
+	Point cpos = {.x = xxPos, .y = yyPos };
+	switch(state) {
+	case 0:
+		DriveForward(speed);
+		InitControlLoop(&pointList[0], &pointList[1], speed);
+		return 1;
+	case 1:
+		if(fabs(cpos.y) >= fabs(pointList[1].y)) {
+			StopController();
+			double turnAngle = GetTurnAngle(pointList[0], cpos, pointList[1]);
+			RotateDegrees(turnAngle, posAngle);
+			return 2;
+		}
+		return 1;
+	case 2:
+		if(_state == IDLE) {
+			InitControlLoop(&pointList[1], &pointList[2], speed);
+			return 3;
+		}
+		return 2;
+	case 3:
+		if(fabs(cpos.x) >= fabs(pointList[2].x)) {
+			StopController();
+			double turnAngle = GetTurnAngle(pointList[1], cpos, pointList[2]);
+			RotateDegrees(turnAngle, posAngle);
+			return 4;
+		}
+		return 3;
+	case 4:
+		if(_state == IDLE) {
+			InitControlLoop(&pointList[2], &pointList[3], speed);
+			return 5;
+		}
+		return 4;
+	case 5:
+		if(fabs(cpos.y) <= fabs(pointList[3].y)) {
+			StopController();
+			double turnAngle = GetTurnAngle(pointList[2], cpos, pointList[3]);
+			RotateDegrees(turnAngle, posAngle);
+			return 6;
+		}
+		return 5;
+	case 6:
+		if(_state == IDLE) {
+			InitControlLoop(&pointList[2], &pointList[3], speed);
+			return 7;
+		}
+		return 6;
+	case 7:
+		if(fabs(cpos.x) <= fabs(pointList[3].x)) {
+			DriveForward(0);
+		}
+	}
+	return 1337;
+}
 
 int DemoGyroNav(int state, int speed) {
 	switch (state) {
@@ -33,6 +82,7 @@ int DemoGyroNav(int state, int speed) {
 	default:
 		break;
 	}
+	return 1337;
 }
 
 int demoCount;
@@ -77,6 +127,7 @@ int DemoRotate(int state, int speed, int rotations) {
 	case 1:
 		break;
 	}
+	return 1337;
 }
 
 Point start = {.x = 0.0, .y = 0.0};
@@ -119,6 +170,7 @@ int DemoCurve(int state, int speed, float distance) {
 	case 2:
 		return 2;
 	}
+	return 1337;
 }
 
 int DemoAvoidance(int state, int speed) {
