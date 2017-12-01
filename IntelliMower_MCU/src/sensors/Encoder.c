@@ -9,9 +9,16 @@ int intCount;
 double leftAngle;
 double rightAngle;
 double angle;
+Point currentPosition = {.x = 0, .y = 0};
 
 double GetPosAngle() {
 	return posAngle;
+}
+
+void PositionCal(Point *p, double deltaDistTraveled, double angleDeg) {
+    double angleRad = angleDeg * M_PI / 180.0;
+    p->x = p->x + deltaDistTraveled * cos(angleRad);
+    p->y = p->y + deltaDistTraveled * sin(angleRad);
 }
 
 void InitEncoders() {
@@ -115,15 +122,17 @@ void TIM4_IRQHandler() {
 		rightEncoder.timeout = 0; //this encoder has interrupted this counter-lapse
 		rightAngle += 22.5;
 		if(GetRightSpeed() >= 0) {
-			xxPos += 0.11046 * cos(posAngle / 180.0 * M_PI) - 2.3475 * sin(posAngle / 180.0 * M_PI);
-			yyPos += 0.11046 * sin(posAngle / 180.0 * M_PI) + 2.3475 * cos(posAngle / 180.0 * M_PI);
+			//xxPos += 0.11046 * cos(posAngle / 180.0 * M_PI) - 2.3475 * sin(posAngle / 180.0 * M_PI);
+			//yyPos += 0.11046 * sin(posAngle / 180.0 * M_PI) + 2.3475 * cos(posAngle / 180.0 * M_PI);
 			posAngle -= 5.388;
+			
 		}
 		else {
-			xxPos -= 0.11046 * cos(posAngle / 180.0 * M_PI) - 2.3475 * sin(posAngle / 180.0 * M_PI);
-			yyPos -= 0.11046 * sin(posAngle / 180.0 * M_PI) + 2.3475 * cos(posAngle / 180.0 * M_PI);
+			//xxPos -= 0.11046 * cos(posAngle / 180.0 * M_PI) - 2.3475 * sin(posAngle / 180.0 * M_PI);
+			//yyPos -= 0.11046 * sin(posAngle / 180.0 * M_PI) + 2.3475 * cos(posAngle / 180.0 * M_PI);
 			posAngle += 5.388;
 		}
+		PositionCal(&currentPosition, 2.3501, posAngle);
 	}
 	else if(TIM4->SR & TIM_SR_CC2IF) { //Encoder 2 rising edge
 //		GpioSetPinToggle(GPIOC, 9);
@@ -145,15 +154,16 @@ void TIM4_IRQHandler() {
 		leftAngle += 22.5;
 
 		if(GetLeftSpeed() >= 0) {
-			xxPos += 0.11046 * cos(posAngle / 180.0 * M_PI) - 2.3475 * sin(posAngle / 180.0 * M_PI);
-			yyPos += 0.11046 * sin(posAngle / 180.0 * M_PI) + 2.3475 * cos(posAngle / 180.0 * M_PI);
+			//xxPos += 0.11046 * cos(posAngle / 180.0 * M_PI) - 2.3475 * sin(posAngle / 180.0 * M_PI);
+			//yyPos += 0.11046 * sin(posAngle / 180.0 * M_PI) + 2.3475 * cos(posAngle / 180.0 * M_PI);
 			posAngle += 5.388;
 		}
 		else {
-			xxPos -= 0.11046 * cos(posAngle / 180.0 * M_PI) - 2.3475 * sin(posAngle / 180.0 * M_PI);
-			yyPos -= 0.11046 * sin(posAngle / 180.0 * M_PI) + 2.3475 * cos(posAngle / 180.0 * M_PI);
+			//xxPos -= 0.11046 * cos(posAngle / 180.0 * M_PI) - 2.3475 * sin(posAngle / 180.0 * M_PI);
+			//yyPos -= 0.11046 * sin(posAngle / 180.0 * M_PI) + 2.3475 * cos(posAngle / 180.0 * M_PI);
 			posAngle -= 5.388;
 		}
+		PositionCal(&currentPosition, 2.3501, posAngle);
 	}
 	else { //Timer overflow.
 		if(leftEncoder.timeout == 1) { //encoders has not interrupted this lapse, assume timeout.
