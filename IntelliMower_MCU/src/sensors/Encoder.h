@@ -16,9 +16,11 @@ typedef struct {
 RotaryEncoder leftEncoder;
 RotaryEncoder rightEncoder;
 
-double xxPos;
-double yyPos;
+//double xxPos;
+//double yyPos;
 double posAngle;
+
+Point currentPosition;
 
 double GetPosAngle();
 void InitEncoders();
