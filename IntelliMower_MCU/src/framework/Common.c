@@ -14,10 +14,10 @@ void CommonInit() {
 	}
 	InitSPI();
 	InitEncoders();
-//	InitI2C();
-//	InitAccMag();
-//	InitGyro();
-//	gyroCalibrated = 1;
+	InitI2C();
+	InitAccMag();
+	InitGyro();
+	gyroCalibrated = 1;
 	InitUltrasonic();
 //	InitSafetyControl();
 	isInitialized = 1;
@@ -61,8 +61,8 @@ void CommonFrame() {
 	while( !quitProgram ) {
 //		state++;
 //		USART6->DR = 0x1; //for testing UART
-//		ReadAccMagData();
-//		ReadGyroData();
+		ReadAccMagData();
+		ReadGyroData();
 
 		//demos below
 //		state = DemoCurve(state, -3000, 200.0);
@@ -72,8 +72,7 @@ void CommonFrame() {
 //		state = DemoAvoidance(state, -3000);
 
 //		state = DemoPointToPoint(state, -3000);
-		Point curP = {xxPos, yyPos};
-		DrivingHandler(&curP);
+		DrivingHandler(&currentPosition);
 		SteeringHandler(posAngle); //in case a steering procedure is ongoing.
 //		UpdatePIDValue(&curP);
 	}

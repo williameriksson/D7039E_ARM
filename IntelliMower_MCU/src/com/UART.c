@@ -50,14 +50,15 @@ void USART6_IRQHandler (void) {
 void SendStats() {
 //	uint8_t byteData[5];
 	double doubleData[9];
-	uint8_t sendData[77]; //9 doubles, 5 chars
-	uint8_t cobsData[79];
+	uint8_t sendData[78]; //9 doubles, 5 chars
+	uint8_t cobsData[80];
 
-	sendData[0] = BumperFront;
-	sendData[1] = BumperBack;
-	sendData[2] = 0;
+	sendData[0] = SEND_DATA;
+	sendData[1] = BumperFront;
+	sendData[2] = BumperBack;
 	sendData[3] = 0;
-	sendData[4] = LiftSensor;
+	sendData[4] = 0;
+	sendData[5] = LiftSensor;
 
 	doubleData[0] = (double)GetLeftSpeed();
 	doubleData[1] = (double)GetRightSpeed();
@@ -69,10 +70,19 @@ void SendStats() {
 	doubleData[7] = currentPosition.y; //ycoord
 	doubleData[8] = 0; //heading
 
+	DoubleToByteArray(doubleData, 9, sendData+6);
+	StuffData(sendData, 78, cobsData);
+	SendData(cobsData, 80);
+}
 
-	DoubleToByteArray(doubleData, 9, sendData+5);
-	StuffData(sendData, 77, cobsData);
-	SendData(cobsData, 79);
+void SendIdle() {
+	uint8_t sendData[1];
+	uint8_t cobsData[3];
+
+	sendData[0] = SEND_MCU_DONE;
+
+	StuffData(sendData, 1, cobsData);
+	SendData(cobsData, 3);
 }
 
 void SendData(uint8_t *sendData, int byte_size) {

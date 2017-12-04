@@ -11,6 +11,8 @@
 
 #define BAUDRATE 9600
 #define RECIEVE_BUFFERSIZE 80
+#define SEND_DATA 0x00
+#define SEND_MCU_DONE 0x01
 
 void InitUART();
 void SendStats();
