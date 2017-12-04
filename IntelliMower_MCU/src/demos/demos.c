@@ -9,7 +9,7 @@ Point pointList[] = {
 };
 
 int DemoPointToPoint(int state, int speed) {
-	Point cpos = {.x = xxPos, .y = yyPos };
+	Point cpos = {.x = currentPosition.x , .y = currentPosition.y };
 	switch(state) {
 	case 0:
 		DriveForward(speed);
@@ -141,8 +141,8 @@ int DemoEncoderNav(int state, int speed) {
 		InitControlLoop(&start, &target, speed);
 		return 1;
 	case 1:
-		curPoss.x = xxPos;
-		curPoss.y = yyPos;
+		curPoss.x = currentPosition.x;
+		curPoss.y = currentPosition.y;
 		UpdatePIDValue(&curPoss);
 		if(abs(curPoss.y) >= target.y) {
 			StopController();

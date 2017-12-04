@@ -61,12 +61,12 @@ void SendStats() {
 
 	doubleData[0] = (double)GetLeftSpeed();
 	doubleData[1] = (double)GetRightSpeed();
-	doubleData[2] = 1.0; //ultrasonic 1
-	doubleData[3] = 2.0; //ultrasonic 2
-	doubleData[4] = 3.0; //ultrasonic 3
-	doubleData[5] = 4.0; //ultrasonic 4
-	doubleData[6] = xxPos; //xcoord
-	doubleData[7] = yyPos; //ycoord
+	doubleData[2] = distanceSensors.distanceOuterRight; //ultrasonic 1
+	doubleData[3] = distanceSensors.distanceInnerRight; //ultrasonic 2
+	doubleData[4] = distanceSensors.distanceInnerLeft; //ultrasonic 3
+	doubleData[5] = distanceSensors.distanceOuterLeft; //ultrasonic 4
+	doubleData[6] = currentPosition.x; //xcoord
+	doubleData[7] = currentPosition.y; //ycoord
 	doubleData[8] = 0; //heading
 
 

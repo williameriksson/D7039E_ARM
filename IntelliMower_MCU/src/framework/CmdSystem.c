@@ -77,8 +77,8 @@ uint8_t RunCommand( uint8_t *rpiCmds ) {
 				moveQueue[0].x = moveQueue[1].x;
 				moveQueue[0].y = moveQueue[1].y;
 
-				moveQueue[1].x = xxPos;
-				moveQueue[1].y = yyPos;
+				moveQueue[1].x = currentPosition.x;
+				moveQueue[1].y = currentPosition.y;
 
 				moveQueue[2].x = target.x; //target pos
 				moveQueue[2].y = target.y;
