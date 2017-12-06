@@ -1,18 +1,20 @@
-/*
- * Cmd.h
- */
-
 #ifndef FRAMEWORK_CMDSYSTEM_H_
 #define FRAMEWORK_CMDSYSTEM_H_
 
 #include <stdint.h>
-#include "utils/GPIO.h"
+
+#include "com/UART.h"
 #include "framework/ControlLoop.h"
+#include "framework/SafetyControl.h"
 #include "motors/Steering.h"
 #include "sensors/Gyroscope.h"
 #include "sensors/Encoder.h"
+
+#include "utils/GPIO.h"
 #include "utils/convertions/intLib.h"
+#include "utils/convertions/floatLib.h"
 #include "utils/Geometry.h"
+#include "utils/Cobs.h"
 
 //
 typedef enum {
@@ -25,14 +27,15 @@ typedef enum {
 	MCU_FEED			= 0x07,
 	MCU_START_BLADES 	= 0x08,
 	MCU_STOP_BLADES 	= 0x09,
+	MCU_POLL_DATA		= 0x0A,
 	MCU_NULL			= 0x00,
 } rpiCMD_t;
 
 
 
 //
-uint8_t RunCommand( uint8_t *rpiCmds );
-
+int RunCommand( uint8_t *rpiCmds );
+void SendStats();
 
 
 #endif /* FRAMEWORK_CMDSYSTEM_H_ */

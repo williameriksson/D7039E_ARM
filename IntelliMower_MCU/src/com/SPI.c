@@ -13,13 +13,12 @@
 #include "utils/Cobs.h"
 
 // private variables
-#define RECEIVE_BUFSIZE 128
-#define INIT_BUFSIZE 2
-
-int bufIndex = 0;
-uint8_t rcvBuf[RECEIVE_BUFSIZE];
-uint8_t testCmd = 0;
-
+//#define RECEIVE_BUFSIZE 128
+//#define INIT_BUFSIZE 2
+//
+//int bufIndex = 0;
+//uint8_t rcvBuf[RECEIVE_BUFSIZE];
+//uint8_t testCmd = 0;
 
 void InitSPI () {
 
@@ -60,34 +59,34 @@ void InitSPI () {
 
 
 
-void SPI2_IRQHandler (void) {
-
-	uint8_t ch = 0;
-
-	if ( SPI2->SR & SPI_SR_RXNE ) {
-
-		ch = SPI2->DR;					// read from SPI reg (SPI clears bit own its own in MCU)
-
-		if( ch ) {
-			rcvBuf[bufIndex] = ch;
-			bufIndex++;
-		} else {	// run after receiving stop bit from cobs
-			rcvBuf[bufIndex] = ch;
-			uint8_t rpiCmds[bufIndex-1];
-			UnStuffData( rcvBuf, bufIndex+1, rpiCmds ); // decode received commands
-
-			testCmd = rpiCmds[0];
-
-			// execute decoded RPI commands on MCU
-			// coordinates will come after the move cmd in same transmission
-			if ( !RunCommand( rpiCmds ) ) {
-				//catch errors here
-			}
-			bufIndex = 0;
-		}
-	}
-
-}
+//void SPI2_IRQHandler (void) {
+//
+//	uint8_t ch = 0;
+//
+//	if ( SPI2->SR & SPI_SR_RXNE ) {
+//
+//		ch = SPI2->DR;					// read from data reg, interrupt bit cleared by hardware on read.
+//
+//		if( ch ) {
+//			rcvBuf[bufIndex] = ch;
+//			bufIndex++;
+//		} else {	// run after receiving stop bit from cobs
+//			rcvBuf[bufIndex] = ch;
+//			uint8_t rpiCmds[bufIndex-1];
+//			UnStuffData( rcvBuf, bufIndex+1, rpiCmds ); // decode received commands
+//
+//			testCmd = rpiCmds[0];
+//
+//			// execute decoded RPI commands on MCU
+//			// coordinates will come after the move cmd in same transmission
+//			if ( !RunCommand( rpiCmds ) ) {
+//				//catch errors here
+//			}
+//			bufIndex = 0;
+//		}
+//	}
+//
+//}
 
 
 

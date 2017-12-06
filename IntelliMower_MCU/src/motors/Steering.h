@@ -3,6 +3,7 @@
 
 #include "stm32f411xe.h"
 #include "MotorControl.h"
+#include "com/UART.h"
 #include "stdlib.h"
 #include "utils/Geometry.h"
 #include "utils/Angle.h"
@@ -31,5 +32,6 @@ int RotateDegrees(float degToTurn, float currentHeading);
 void SteeringHandler(float currentHeading);
 void DrivingHandler(Point *curP);
 int SetDriveTarget(Point newTarget);
+int SetDriveSpeed(int speed);
 
 #endif /* MOTORS_STEERING_H_ */

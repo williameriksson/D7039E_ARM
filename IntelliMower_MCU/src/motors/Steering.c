@@ -37,7 +37,9 @@ float degreesToTurn;
 /* Driving procedure vars */
 Point prevPos = {.x = 0.0, .y = 0.0};
 Point targetPos = {.x = 0.0, .y = 0.0};
-double prevDistance = 1000000;
+double prevDistance = 1000000.0;
+double acceptedTargetDeviation = 5.0;
+int driveSpeed = 0;
 
 /* STM studio monitoring */
 int leftSpeedGlobal;
@@ -163,16 +165,18 @@ void SteeringHandler(float currentHeading) {
 
 void DrivingHandler(Point *pos) {
 	if(_state == DRIVING) {
-//		double distance = GetDistTwoPoints(*pos, targetPos);
-//		if(distance <= prevDistance) {
-////		prevDistance = distance;
-//			//it's still approaching the target.
-//		}
-//		else {
-//			DriveForward(0);
-//			prevDistance = 1000000;
-//			_state = IDLE;
-//		}
+		double distance = GetDistTwoPoints(*pos, targetPos);
+		if(distance <= prevDistance || distance <= acceptedTargetDeviation) {
+		//The distance to target is decreasing or within accepted range
+			prevDistance = distance;
+		}
+		else {
+			//It has reached target or can't get closer.
+			DriveForward(0);
+			prevDistance = 1000000;
+			_state = IDLE;
+			SendIdle(); //informs the r.pi that it's idle again.
+		}
 	}
 	else {
 		prevDistance = 1000000;
@@ -182,6 +186,11 @@ void DrivingHandler(Point *pos) {
 int SetDriveTarget(Point newTarget) {
 	targetPos.x = newTarget.x;
 	targetPos.y = newTarget.y;
+	return 0;
+}
+
+int SetDriveSpeed(int speed) {
+	driveSpeed = speed;
 	return 0;
 }
 

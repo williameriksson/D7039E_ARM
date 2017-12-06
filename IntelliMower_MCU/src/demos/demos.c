@@ -1,4 +1,10 @@
 #include "demos.h"
+
+/*
+ * demos.c contains multiple demos intended to test the functionality of the MCU (stm32) alone,
+ * without the aid of the Raspberry pi feeding it commands and/or information.
+ */
+
 Point currentPos;
 
 Point pointList[] = {
