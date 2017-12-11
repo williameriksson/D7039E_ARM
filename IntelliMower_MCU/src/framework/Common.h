@@ -11,6 +11,7 @@
 
 #include "com/SPI.h"
 #include "framework/ControlLoop.h"
+#include "framework/CmdSystem.h"
 #include "motors/Steering.h"
 #include "sensors/UltraSonic.h"
 #include "utils/containers/CircularBuffer.h"

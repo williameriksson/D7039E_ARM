@@ -9,19 +9,16 @@ volatile int quitProgram   = 0;
 void CommonInit() {
 	// place all inits here
 	InitSteering();
-	for(int i; i < 10000000; i++) {
-
-	}
-	InitSPI();
+//	InitSPI();
 	InitEncoders();
-	InitI2C();
-	InitAccMag();
-	InitGyro();
-	gyroCalibrated = 1;
-	InitUltrasonic();
+//	InitI2C();
+//	InitAccMag();
+//	InitGyro();
+//	gyroCalibrated = 1;
+//	InitUltrasonic();
 //	InitSafetyControl();
 	isInitialized = 1;
-	InitUART();
+//	InitUART();
 }
 
 /*
@@ -43,40 +40,87 @@ void CommonQuit() {
  */
 int state;
 
+int nextPoint;
+Point pointQueue[] = {
+		{.x = 100.0, .y = 0.0},
+		{.x = 100.0, .y = 100.0},
+		{.x = 0.0, .y = 100.0},
+		{.x = 0.0, .y = 0.0}
+};
+
+Point pointQueueTwo[] = {
+		{.x = 100.0, .y = 0.0},
+		{.x = 100.0, .y = 100.0},
+		{.x = 0.0, .y = 100.0},
+		{.x = 0.0, .y = 200.0},
+		{.x = 200.0, .y = 200.0},
+		{.x = 0.0, .y = 0.0}
+};
+
+
+
+/* for spoofing input from the PI. */
+void MakeMoveCMD(Point target, uint8_t speed, uint8_t *cmdString) {
+	cmdString[0] = 0x06; //move cmd
+	cmdString[1] = speed;
+	double coords[4];
+	coords[0] = 0.0;
+	coords[1] = 0.0;
+	coords[2] = target.x;
+	coords[3] = target.y;
+	DoubleToByteArray(coords, 4, cmdString+2);
+}
+
+void CheckState(Point *pointList, int length) {
+	if(_state == IDLE && length == nextPoint) {
+		//reached final point and is idle.
+	}
+	else if(_state == IDLE) {
+		uint8_t moveCMD[34];
+		MakeMoveCMD(pointQueue[nextPoint], 200, moveCMD);
+		nextPoint++;
+		RunCommand(moveCMD);
+	}
+	else if(_state == DRIVING) {
+		//is driving, just wait.
+	}
+	else if(_state == TURNING) {
+		//is turning, just wait.
+	}
+}
+
 void CommonFrame() {
 	state = 0;
-//	uint8_t spiTest = 0;
-//	Point currentPos = { .x = 0.0f, .y = 0.0f};
-//	Point target = { .x = 0.0f, .y = 100.0f};
+	nextPoint = 0;
 
-//	gyro.yaw = 0.0f;
-//	DriveForward(-20);
-//	InitControlLoop(&currentPos, &target, -20);
-//	RotateLeft(2000);
-//	Point start = {.x = 0.0, .y = 0.0};
-//	Point target = {.x = 0.0, .y = 200.0};
+	for(int i = 0; i < 10000000; i++) {
 
-//	InitControlLoop(&start, &target, -3000);
+	}
 
+	/* motors with direction pin below */
+//	TimerSetPWM(TIM2, 1, 500, 1000);
+//	TimerSetPWM(TIM2, 3, 500, 1000);
+//	GpioEnable(GPIOC);
+//	GpioSetOutput(GPIOC, 13);
+//	GpioSetOutput(GPIOC, 14);
+//	GpioSetPinHigh(GPIOC, 13);
+//	GpioSetPinHigh(GPIOC, 14);
+	//end
+//	DriveForward(-4000);
 	while( !quitProgram ) {
 //		state++;
-//		USART6->DR = 0x1; //for testing UART
-		ReadAccMagData();
-		ReadGyroData();
+//		ReadAccMagData();
+//		ReadGyroData();
 
 		//demos below
-//		state = DemoCurve(state, -3000, 200.0);
-//		state = DemoSquare(state, -3000);
-//		state = DemoRotate(state, -3000, 0);
-//		state = DemoEncoderNav(state, -3000);
-//		state = DemoAvoidance(state, -3000);
-
 //		state = DemoPointToPoint(state, -3000);
 		DrivingHandler(&currentPosition);
 		SteeringHandler(posAngle); //in case a steering procedure is ongoing.
 //		UpdatePIDValue(&curP);
+		CheckState(pointQueue, (sizeof(pointQueue) / sizeof(pointQueue[0])));
 	}
 }
+
 
 
 
