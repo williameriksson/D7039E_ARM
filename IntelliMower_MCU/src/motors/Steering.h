@@ -7,6 +7,7 @@
 #include "stdlib.h"
 #include "utils/Geometry.h"
 #include "utils/Angle.h"
+#include "sensors/Encoder.h"
 
 //typedef struct {
 //	MotorController *leftMotor;
@@ -20,6 +21,7 @@ typedef enum {
 }_STATE;
 
 _STATE _state;
+double prevPosAngle;
 
 void InitSteering();
 int RotateLeft(int speed);
@@ -33,5 +35,6 @@ void SteeringHandler(float currentHeading);
 void DrivingHandler(Point *curP);
 int SetDriveTarget(Point newTarget);
 int SetDriveSpeed(int speed);
+void CheckIdle();
 
 #endif /* MOTORS_STEERING_H_ */

@@ -52,6 +52,7 @@ void InitSteering() {
 	InitMotorControl(&rightMotorController);
 	SetMotorSpeed(&leftMotorController, 0);
 	SetMotorSpeed(&rightMotorController, 0);
+	prevPosAngle = 0.0;
 	_state = IDLE;
 }
 
@@ -158,6 +159,7 @@ void SteeringHandler(float currentHeading) {
 		if(abs(currentHeading) >= abs(initialHeading + degreesToTurn) ) { //turn has been reached.
 			//has turned desired degrees.
 			DriveForward(-3000);
+			prevPosAngle = posAngle;
 			_state = DRIVING;
 		}
 	}
@@ -175,11 +177,22 @@ void DrivingHandler(Point *pos) {
 			DriveForward(0);
 			prevDistance = 1000000;
 			_state = IDLE;
-			SendIdle(); //informs the r.pi that it's idle again.
+//			SendIdle(); //informs the r.pi that it's idle again.
+//			while(_state == IDLE) {
+//				SendIdle(); //informs the r.pi that it's idle again.
+//				for(int i = 0; i < 10000000; i++) {
+//
+//				}
+//			}
 		}
 	}
 	else {
 		prevDistance = 1000000;
+	}
+}
+
+void CheckIdle() {
+	if(_state == IDLE) {
 	}
 }
 

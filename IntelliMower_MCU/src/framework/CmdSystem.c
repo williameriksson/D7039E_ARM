@@ -21,13 +21,15 @@ typedef struct {
 int bufIndex = 0;
 uint8_t rcvBuf[RECEIVE_BUFSIZE];
 
+int spookCount = 0;
+
 /*
  *  Executes the RPI commands on the MCU
  */
 int RunCommand( uint8_t *rpiCmds ) {
 	rpiCMD_t newCMD = rpiCmds[0]; //first byte is Command (message) type.
 	setMotor_t setMotor = { .speed = (int8_t)rpiCmds[1] };
-	int32_t coordinates[4] = {0, 0, 0, 0};
+	double coordinates[4] = {0.0, 0.0, 0.0, 0.0};
 
 	// catch if no cmd was sent
 	if( newCMD  == MCU_NULL ) return 0;
@@ -63,24 +65,29 @@ int RunCommand( uint8_t *rpiCmds ) {
 		case MCU_MOVE :
 			// a move instruction has been recieved, decide how much to turn
 			// and start moving towards point.
-			ByteArrToInt32(&rpiCmds[2], 16, coordinates);
-			inControlLoop = 1;
+			ByteArrayToDouble(&rpiCmds[2], 32, coordinates);
+			inControlLoop = 0;
 			Point target = { .x = coordinates[2], .y = coordinates[3]};
+			double posAngleDiff = posAngle - prevPosAngle;
 
 			if(firstMoveDone == 0) { //is this first move?
+				spookCount++;
 				moveQueue[0].x = 0.0; // initial pos
 				moveQueue[0].y = 0.0;
 				moveQueue[1].x = 0.0;
 				moveQueue[1].y = 0.0;
 				moveQueue[2].x = target.x; //target pos
 				moveQueue[2].y = target.y;
-				DriveForward((-10)*setMotor.speed);
-				SetDriveSpeed((-10)*setMotor.speed);
+//				DriveForward((-10)*setMotor.speed);
+//				SetDriveSpeed((-10)*setMotor.speed);
+				DriveForward(-3000);
+				SetDriveSpeed(-3000);
 				SetDriveTarget(moveQueue[2]);
 				firstMoveDone = 1;
 				_state = DRIVING;
 			}
 			else {
+				spookCount++;
 				moveQueue[0].x = moveQueue[1].x;
 				moveQueue[0].y = moveQueue[1].y;
 
@@ -90,12 +97,13 @@ int RunCommand( uint8_t *rpiCmds ) {
 				moveQueue[2].x = target.x; //target pos
 				moveQueue[2].y = target.y;
 
-				SetDriveSpeed((-10)*setMotor.speed);
+//				SetDriveSpeed((-10)*setMotor.speed);
+				SetDriveSpeed(-3000);
 				SetDriveTarget(moveQueue[2]);
 				float anglesToTurn = GetTurnAngle(moveQueue[0], moveQueue[1], moveQueue[2]);
 //				gyro.yaw = 0.0;
-				turnDesired = anglesToTurn;
-				RotateDegrees(anglesToTurn, posAngle);
+				turnDesired = anglesToTurn - posAngleDiff;
+				RotateDegrees(turnDesired, posAngle);
 			}
 //			gyro.yaw = 0.0f;
 //			DriveForward(setMotor.speed);
@@ -126,7 +134,7 @@ void SendStats() {
 	uint8_t sendData[78]; //9 doubles, 6 chars
 	uint8_t cobsData[80]; //COBS has 2 byte overhead.
 
-	sendData[0] = MCU_POLL_DATA;	// message type
+	sendData[0] = MCU_POLL_DATA-3	;	// message type
 	sendData[1] = BumperFront;		// bumper sensors in front triggered
 	sendData[2] = BumperBack;		// bumper sensors in back triggered
 	sendData[3] = 0;				// TODO: cutting blade status (spinning or not)

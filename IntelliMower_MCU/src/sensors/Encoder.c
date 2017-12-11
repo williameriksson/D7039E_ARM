@@ -4,7 +4,8 @@
 int ccrReg;
 int ccrPrevReg;
 int countReg;
-int intCount;
+int leftIntCount;
+int rightIntCount;
 
 double leftAngle;
 double rightAngle;
@@ -25,7 +26,6 @@ void InitEncoders() {
 	ccrReg = 0;
 	ccrPrevReg = 0;
 	countReg = 0;
-	intCount = 0;
 	angle = 0.0;
 	ResetEncoder(&leftEncoder);
 	ResetEncoder(&rightEncoder);
@@ -107,11 +107,12 @@ void TIM4_IRQHandler() {
 	TIM4->SR &= ~TIM_SR_UIF;
 	if(TIM4->SR & TIM_SR_CC1IF) { //Encoder 1 rising edge
 //		GpioSetPinToggle(GPIOC, 8);
-//		if(TIM4->CNT - rightEncoder.prevReg < 500) {
-//			int trash = TIM4->CCR1;
-//			return;
-//		}
-		intCount++;		rightEncoder.reg = TIM4->CCR1;
+		if(TIM4->CNT - rightEncoder.prevReg < 500) {
+			int trash = TIM4->CCR1;
+			rightIntCount++;
+			return;
+		}
+		rightEncoder.reg = TIM4->CCR1;
 		TIM4->SR &= ~TIM_SR_CC1IF;
 		ccrReg = rightEncoder.reg;
 		ccrPrevReg = rightEncoder.prevReg;
@@ -139,11 +140,11 @@ void TIM4_IRQHandler() {
 	}
 	else if(TIM4->SR & TIM_SR_CC2IF) { //Encoder 2 rising edge
 //		GpioSetPinToggle(GPIOC, 9);
-//		if(TIM4->CNT - leftEncoder.prevReg < 500) {
-//			int trash = TIM4->CCR2;
-//			return;
-//		}
-		intCount++;
+		if(TIM4->CNT - leftEncoder.prevReg < 500) {
+			int trash = TIM4->CCR2;
+			leftIntCount++;
+			return;
+		}
 		leftEncoder.reg = TIM4->CCR2;
 		TIM4->SR &= ~TIM_SR_CC2IF;
 		ccrReg = leftEncoder.reg;

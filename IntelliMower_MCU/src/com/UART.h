@@ -5,7 +5,7 @@
 #include "utils/Cobs.h"
 #include "utils/convertions/floatLib.h"
 
-#define BAUDRATE 115200
+#define BAUDRATE 9600
 #define RECIEVE_BUFFERSIZE 80
 #define SEND_DATA 0x00
 #define SEND_MCU_DONE 0x01

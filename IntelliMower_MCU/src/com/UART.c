@@ -21,8 +21,6 @@ void InitUART () {
 	NVIC_SetPriority(USART6_IRQn, 71); //TODO: decide on prio.
 	__enable_irq();
 
-//	circularBufferInit(&recieveBuffer, (uint8_t)0, (uint8_t)RECIEVE_BUFFERSIZE);
-//	fillBuffer(&recieveBuffer, 0);
 	indata_index = 0;
 }
 
@@ -43,10 +41,10 @@ int PushData(uint8_t *data, int byte_size) {
 void SendData(uint8_t *sendData, int byte_size) {
 	int i = 0;
 	while((i < byte_size)) {
-		USART6->DR = sendData[i];
-		i++;
 		while(!(USART6->SR & USART_SR_TXE)) {
 			//wait for transmission
 		}
+		USART6->DR = sendData[i];
+		i++;
 	}
 }
