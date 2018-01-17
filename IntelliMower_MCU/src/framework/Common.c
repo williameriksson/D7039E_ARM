@@ -10,12 +10,14 @@ void CommonInit() {
 	// place all inits here
 	InitSteering();
 //	InitSPI();
+	InitBladeControl();
 	InitEncoders();
+	StartBlades();
 //	InitI2C();
 //	InitAccMag();
 //	InitGyro();
 //	gyroCalibrated = 1;
-//	InitUltrasonic();
+	InitUltrasonic();
 //	InitSafetyControl();
 	isInitialized = 1;
 //	InitUART();
@@ -111,12 +113,13 @@ void CommonFrame() {
 //		state++;
 //		ReadAccMagData();
 //		ReadGyroData();
-
 		//demos below
 //		state = DemoPointToPoint(state, -3000);
+//		DriveForward(-5000);
+
 		DrivingHandler(&currentPosition);
 		SteeringHandler(posAngle); //in case a steering procedure is ongoing.
-//		UpdatePIDValue(&curP);
+		//UpdatePIDValue(&curP);
 		CheckState(pointQueue, (sizeof(pointQueue) / sizeof(pointQueue[0])));
 	}
 }

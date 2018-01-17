@@ -48,6 +48,9 @@ int leftPwGlobal;
 int rightPwGlobal;
 
 void InitSteering() {
+	GpioEnable(GPIOA);
+	GpioSetOutput(GPIOA, 0);
+	GpioSetPinLow(GPIOA, 0);
 	InitMotorControl(&leftMotorController);
 	InitMotorControl(&rightMotorController);
 	SetMotorSpeed(&leftMotorController, 0);

@@ -28,6 +28,10 @@ void InitUltrasonic() {
 	 */
 	GpioEnable(GPIOA);
 	GpioEnable(GPIOB);
+	GpioEnable(GPIOC);
+
+	GpioSetOutput(GPIOC, 5);
+	GpioSetPinLow(GPIOC, 5);
 
 	GpioSetAF(GPIOA, 6, 2); // TIM3 CH1
 	GpioSetAF(GPIOA, 7, 2); // TIM3 CH2

@@ -1,27 +1,16 @@
-/*
- * BladeControl.c
- *
- *  Created on: 7 sep. 2017
- *      Author: A1201-admin
- */
 #include "BladeControl.h"
 
-void InitBladeControl () {
-
+void InitBladeControl() {
 	GpioEnable(GPIOA);
-	GpioSetOutput(GPIOA, 8);
-
+	GpioSetOutput(GPIOA, 1);
+	GpioSetPinHigh(GPIOA, 1);
 }
 
-void StartBlades () {
-
-	GpioSetPinHigh(GPIOA, 8);
-
+void StartBlades() {
+	GpioSetPinLow(GPIOA, 1);
 }
 
-void StopBlades () {
-
-	GpioSetPinLow(GPIOA, 8);
-
+void StopBlades() {
+	GpioSetPinHigh(GPIOA, 1);
 }
 
